@@ -4,30 +4,36 @@
 
 /* Global Font Settings */
 body {
-  font-family: 'Google Sans', 'Roboto', sans-serif;
+  font-family: 'Google Sans', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  margin: 0;
+  padding: 0;
+  height: 100vh;
+  overflow: hidden;
 }
-.ng-star-inserted{
+
+.ng-star-inserted {
     line-height: 20px;
     font-size: 14px;
     font-weight: 400;
 }
+
 /* Chat Container */
 .turn-container {
   display: flex;
   flex-direction: column;
-  background-color: #fff;
+  background-color: transparent;
   width: 100%;
-  max-height: calc(100vh - 220px);
-  overflow-y: auto;
+  /* max-height removed to allow flex container to control scroll */
+  height: 100%;
 }
 
 /* Turn (Message Block) */
 .turn {
   display: flex;
   flex-direction: column;
-  padding: 12px 16px;
+  padding: 12px 0; /* Reduced horizontal padding as parent has padding */
   border-bottom: 1px solid #f0f0f0;
   width: 100%;
   box-sizing: border-box;
@@ -40,59 +46,57 @@ body {
 /* Header (User / Model) */
 .turn-header {
   font-family: 'Google Sans', sans-serif;
-  font-size: 14px;
-  font-weight: 500;
-  color: #1f1f1f;
-  margin-bottom: 12px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #444;
+  margin-bottom: 8px;
   display: flex;
   align-items: center;
   gap: 8px;
 }
 
 .turn-header .circle {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
   border-radius: 50%;
-  background-color: #1a73e8; /* Google Blue */
+  background-color: #000; 
 }
 
 /* Specific Turn Styles */
 .turn.input {
-  /* User Input */
-  background-color: #fff;
+  background-color: transparent;
 }
 
 .turn.output {
-  /* Model Output */
-  background-color: #fff;
+  background-color: transparent;
 }
 
 /* Expandable Thought Process */
 ms-expandable-turn {
   display: block;
-  margin-bottom: 16px;
+  margin-bottom: 12px;
 }
 
 .container.outlined.interactive.expandable {
-  border: 1px solid #e0e3e1;
+  border: 1px solid #eaeaea;
   border-radius: 8px;
-  background-color: #f8f9fa;
+  background-color: #f9f9f9;
   overflow: hidden;
   transition: background-color 0.2s;
 }
 
 .container.outlined.interactive.expandable:hover {
-  background-color: #f1f3f4;
+  background-color: #f5f5f5;
 }
 
 .container .header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 12px 16px;
+  padding: 10px 14px;
   cursor: pointer;
-  font-size: 13px;
-  color: #444746;
+  font-size: 12px;
+  color: #666;
   user-select: none;
 }
 
@@ -104,17 +108,17 @@ ms-expandable-turn {
 }
 
 .expand-icon {
-  color: #5f6368;
+  color: #888;
 }
 
 /* Generation Table */
 ms-console-generation-table {
   display: block;
-  margin-top: 16px;
+  margin-top: 12px;
 }
 
 .generation-table {
-  border: 1px solid #e0e3e1;
+  border: 1px solid #eaeaea;
   border-radius: 8px;
   background: #fff;
   display: flex;
@@ -126,8 +130,8 @@ ms-console-generation-table-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 10px 16px;
-  border-bottom: 1px solid #f0f0f0;
+  padding: 8px 14px;
+  border-bottom: 1px solid #f5f5f5;
   gap: 12px;
   cursor: pointer;
   transition: background-color 0.1s;
@@ -138,13 +142,13 @@ ms-console-generation-table-row:last-child {
 }
 
 ms-console-generation-table-row:hover {
-  background-color: #f8f9fa;
+  background-color: #fafafa;
 }
 
 .gt-path {
   font-family: 'Roboto Mono', monospace;
-  font-size: 13px;
-  color: #1f1f1f;
+  font-size: 12px;
+  color: #333;
   background: none;
   border: none;
   cursor: pointer;
@@ -163,30 +167,30 @@ ms-console-generation-table-row:hover {
 }
 
 .gt-icon .check {
-  color: #146c2e; /* Green */
-  font-size: 20px;
+  color: #28a745;
+  font-size: 16px;
 }
 
 .gt-icon .error {
-  color: #b3261e; /* Red */
-  font-size: 20px;
+  color: #dc3545;
+  font-size: 16px;
 }
 
 /* Markdown Content */
 ms-cmark-node {
   display: block;
-  font-size: 15px;
+  font-size: 14px;
   line-height: 1.6;
-  color: #1f1f1f;
+  color: #333;
 }
 
 ms-cmark-node p {
-  margin-bottom: 12px;
+  margin-bottom: 10px;
 }
 
 ms-cmark-node ul, ms-cmark-node ol {
-  margin-left: 24px;
-  margin-bottom: 12px;
+  margin-left: 20px;
+  margin-bottom: 10px;
   padding-left: 0;
 }
 
@@ -196,43 +200,45 @@ ms-cmark-node li {
 
 ms-cmark-node strong {
   font-weight: 600;
-  color: #1f1f1f;
+  color: #111;
 }
 
 /* Inline Code */
 .inline-code {
   font-family: 'Roboto Mono', monospace;
-  background-color: #f1f3f4;
+  background-color: #f5f5f5;
   padding: 2px 4px;
   border-radius: 4px;
-  font-size: 13px;
+  font-size: 12px;
+  color: #d63384;
 }
 
 /* Error Container */
 .error-container {
-  background-color: #fce8e6;
-  border: 1px solid #fad2cf;
+  background-color: #fff5f5;
+  border: 1px solid #ffebeb;
   border-radius: 8px;
-  padding: 16px;
-  color: #c5221f;
+  padding: 12px;
+  color: #d32f2f;
   display: flex;
   align-items: center;
-  gap: 12px;
-  margin-top: 16px;
+  gap: 10px;
+  margin-top: 12px;
+  font-size: 13px;
 }
 
 .error-title {
-  font-weight: 500;
+  font-weight: 600;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
 }
 
 /* Feedback Buttons */
 .feedback-container {
   display: flex;
-  gap: 8px;
-  margin-top: 16px;
+  gap: 6px;
+  margin-top: 12px;
   justify-content: flex-end;
 }
 
@@ -240,18 +246,18 @@ ms-cmark-node strong {
   background: none;
   border: none;
   cursor: pointer;
-  color: #5f6368;
-  padding: 8px;
-  border-radius: 50%;
+  color: #888;
+  padding: 6px;
+  border-radius: 4px;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: background-color 0.2s;
+  transition: all 0.2s;
 }
 
 .ms-button-icon:hover {
-  background-color: #f1f3f4;
-  color: #1f1f1f;
+  background-color: #f5f5f5;
+  color: #333;
 }
 
 /* Icons */
@@ -259,7 +265,7 @@ ms-cmark-node strong {
   font-family: 'Material Symbols Outlined';
   font-weight: normal;
   font-style: normal;
-  font-size: 20px;
+  font-size: 18px;
   line-height: 1;
   letter-spacing: normal;
   text-transform: none;
@@ -272,13 +278,14 @@ ms-cmark-node strong {
 /* Duration badge */
 .duration {
   font-weight: 400;
-  color: #5f6368;
+  color: #888;
   margin-left: 4px;
+  font-size: 11px;
 }
 
 /* Divider */
 .mat-divider {
-  border-top: 1px solid #e0e0e0;
+  border-top: 1px solid #eaeaea;
   margin: 0;
   display: block;
   width: 100%;

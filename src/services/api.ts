@@ -9,6 +9,19 @@ const client = axios.create({
     }
 });
 
+// Add driveid to every request if present in URL
+client.interceptors.request.use((config) => {
+    if (typeof window !== 'undefined') {
+        const params = new URLSearchParams(window.location.search);
+        const driveId = params.get('driveid');
+        if (driveId) {
+            config.params = config.params || {};
+            config.params.driveid = driveId;
+        }
+    }
+    return config;
+});
+
 client.interceptors.response.use(
     response => response.data,
     error => {
@@ -35,6 +48,9 @@ export const api = {
     },
     getChatContent: () => {
         return client.get('/api/chatcontent');
+    },
+    initChatContent: (prompt: string) => {
+        return client.post('/api/initChatContent', { prompt });
     },
     sendChatMsg: (prompt: string) => {
         return client.post('/api/chatmsg', { prompt });
