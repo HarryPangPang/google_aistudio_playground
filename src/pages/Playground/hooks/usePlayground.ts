@@ -25,9 +25,6 @@ export function usePlayground() {
             }
         } catch (chatErr) {
             alert('Failed to load chat content, reloading...');
-            setTimeout(() => {
-                window.location.reload();
-            }, 1000);
             console.warn('Failed to load chat content:', chatErr);
         }
     };
@@ -48,6 +45,7 @@ export function usePlayground() {
                 // if (data.success && data.data && data.data.files) {
                 //     setFiles(data.data.files);
                 // }
+                console.log('targetId', targetId);
                 await initHistory(targetId);
             } catch (err: any) {
                 console.error('Failed to load app:', err);
@@ -94,9 +92,8 @@ export function usePlayground() {
             // }
 
             // const payload: any = { files: currentFiles };
-            const payload: any = { id: appId };
 
-            const data: any = await api.deploywithcode(payload);
+            const data: any = await api.deploywithcode({ id: appId });
 
             const url = `${window.location.origin}/${data.url}`;
             setDeployUrl(url);
@@ -106,6 +103,47 @@ export function usePlayground() {
         } finally {
             setIsDeploying(false);
             setLoadingStatus('');
+        }
+    };
+
+    const saveToHistory = (id: string, currentPrompt: string, chatContent: string) => {
+        try {
+            const history = JSON.parse(localStorage.getItem('chat_history') || '[]');
+            let existingIndex = -1;
+            
+            if (id) {
+                existingIndex = history.findIndex((item: any) => item.driveid === id);
+            }
+
+            if (existingIndex !== -1) {
+                const item = history[existingIndex];
+                const prompts = Array.isArray(item.prompt) ? item.prompt : [item.prompt];
+                prompts.push(currentPrompt);
+
+                const updatedItem = {
+                    ...item,
+                    prompt: prompts,
+                    chatContent: chatContent,
+                    updatedAt: Date.now()
+                };
+                
+                history.splice(existingIndex, 1);
+                history.unshift(updatedItem);
+            } else {
+                const newRecord = {
+                    driveid: id || '',
+                    id: id || '',
+                    filename: '',
+                    filepath: '',
+                    prompt: [currentPrompt],
+                    chatContent: chatContent,
+                    createdAt: Date.now()
+                };
+                history.unshift(newRecord);
+            }
+            localStorage.setItem('chat_history', JSON.stringify(history));
+        } catch (e) {
+            console.error('Failed to save history:', e);
         }
     };
 
@@ -125,13 +163,17 @@ export function usePlayground() {
                 setChatContent(chatDomContent);
                 setAppId(driveid);
                 setPendingDeployAppId(driveid);
+
+                saveToHistory(driveid, currentPrompt, chatDomContent);
             } else {
                 const res: any = await api.sendChatMsg({
                     prompt: currentPrompt,
                     driveid: appId,
                 });
-                setChatContent(res?.chatDomContent || '');
+                const chatDomContent = res?.chatDomContent || '';
+                setChatContent(chatDomContent);
                 setPendingDeployAppId(appId);
+                saveToHistory(appId, currentPrompt, chatDomContent);
             }
 
             setLoadingStatus('');
