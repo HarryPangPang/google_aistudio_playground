@@ -94,7 +94,7 @@ export function usePlayground() {
 
             const data: any = await api.deploywithcode(payload);
 
-            const url = `http://localhost:1234/${data.url}`;
+            const url = `${window.location.origin}/${data.url}`;
             setDeployUrl(url);
         } catch (err: any) {
             console.error('Deploy error:', err);
