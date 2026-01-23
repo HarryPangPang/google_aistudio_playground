@@ -17,8 +17,19 @@ export function usePlayground() {
     const [files, setFiles] = useState<Record<string, string>>({});
 
     const initHistory = async (driveid: string) => {
+        // Try local storage first
         try {
+            const history = JSON.parse(localStorage.getItem('chat_history') || '[]');
+            const item = history.find((i: any) => i.driveid === driveid);
+            if (item && item.chatContent) {
+                setChatContent(item.chatContent);
+                return;
+            }
+        } catch (e) {
+            console.warn('Failed to read from local storage', e);
+        }
 
+        try {
             const chatData: any = await api.getChatContent(driveid);
             if (chatData && chatData.chatDomContent) {
                 setChatContent(chatData.chatDomContent);
