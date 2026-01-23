@@ -46,14 +46,14 @@ export const api = {
     generateCode: (prompt: string) => {
         return client.post('/api/generate', { prompt });
     },
-    getChatContent: () => {
-        return client.get('/api/chatcontent');
+    getChatContent: (driveid: string) => {
+        return client.get('/api/chatcontent', { params: { driveid } });
     },
     initChatContent: (prompt: string) => {
         return client.post('/api/initChatContent', { prompt });
     },
-    sendChatMsg: (prompt: string) => {
-        return client.post('/api/chatmsg', { prompt });
+    sendChatMsg: (payload: { prompt: string, driveid: string }) => {
+        return client.post('/api/chatmsg', payload);
     },
     deploywithcode: (data: any) => {
         return client.post('/api/deploywithcode', { data });

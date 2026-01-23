@@ -16,13 +16,18 @@ export function usePlayground() {
     // Keep files state for deployment/download, even if not displayed
     const [files, setFiles] = useState<Record<string, string>>({});
 
-    const initChatContent = async () => {
+    const initHistory = async (driveid: string) => {
         try {
-            const chatData: any = await api.getChatContent();
+
+            const chatData: any = await api.getChatContent(driveid);
             if (chatData && chatData.chatDomContent) {
                 setChatContent(chatData.chatDomContent);
             }
         } catch (chatErr) {
+            alert('Failed to load chat content, reloading...');
+            setTimeout(() => {
+                window.location.reload();
+            }, 1000);
             console.warn('Failed to load chat content:', chatErr);
         }
     };
@@ -43,7 +48,7 @@ export function usePlayground() {
                 // if (data.success && data.data && data.data.files) {
                 //     setFiles(data.data.files);
                 // }
-                await initChatContent();
+                await initHistory(targetId);
             } catch (err: any) {
                 console.error('Failed to load app:', err);
             }
@@ -61,8 +66,7 @@ export function usePlayground() {
     const handleSave = async () => {
         setIsSaving(true);
         try {
-            const id = appId;
-            await api.saveApp(id, files);
+            await api.saveApp(appId, files);
             // Note: If we are in "New Session" mode, we might want to update the URL here
             // so the user can bookmark it. But per requirements, we just keep it simple.
         } catch (err: any) {
@@ -122,7 +126,10 @@ export function usePlayground() {
                 setAppId(driveid);
                 setPendingDeployAppId(driveid);
             } else {
-                const res: any = await api.sendChatMsg(currentPrompt);
+                const res: any = await api.sendChatMsg({
+                    prompt: currentPrompt,
+                    driveid: appId,
+                });
                 setChatContent(res?.chatDomContent || '');
                 setPendingDeployAppId(appId);
             }
