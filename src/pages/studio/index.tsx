@@ -7,6 +7,7 @@ import { LoadingOverlay } from './components/LoadingOverlay';
 import { DeploymentModal } from './components/DeploymentModal';
 import { DeployConfirmModal } from './components/DeployConfirmModal';
 import { Sidebar } from './components/Sidebar';
+import './Studio.scss';
 
 const Playground: React.FC = () => {
     const {
@@ -56,14 +57,7 @@ const Playground: React.FC = () => {
     };
 
     return (
-        <div style={{
-            display: 'flex',
-            flexDirection: 'column',
-            height: '100vh',
-            fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
-            backgroundColor: '#fff',
-            color: '#1f1f1f'
-        }}>
+        <div className="playground-container">
             <Header
                 isSaving={isSaving}
                 isDeploying={isDeploying}
@@ -85,15 +79,7 @@ const Playground: React.FC = () => {
             {sidebarVisible && (
                 <div 
                     onClick={() => setSidebarVisible(false)}
-                    style={{
-                        position: 'fixed',
-                        top: 0,
-                        left: 0,
-                        right: 0,
-                        bottom: 0,
-                        backgroundColor: 'rgba(0,0,0,0.3)',
-                        zIndex: 900
-                    }}
+                    className="sidebar-overlay"
                 />
             )}
 

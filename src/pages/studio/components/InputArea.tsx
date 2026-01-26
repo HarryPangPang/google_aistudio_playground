@@ -1,5 +1,5 @@
 import React from 'react';
-import './css/InputArea.css';
+import './css/InputArea.scss';
 
 interface InputAreaProps {
     prompt: string;

@@ -1,5 +1,5 @@
 import React from 'react';
-import './css/ChatArea.css';
+import './css/ChatArea.scss';
 interface ChatAreaProps {
     chatContent: string;
 }
