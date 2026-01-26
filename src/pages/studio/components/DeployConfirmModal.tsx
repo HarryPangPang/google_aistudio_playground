@@ -1,4 +1,5 @@
 import React from 'react';
+import { useI18n } from '../../../context/I18nContext';
 import './css/DeployConfirmModal.scss';
 
 interface DeployConfirmModalProps {
@@ -8,29 +9,31 @@ interface DeployConfirmModalProps {
 }
 
 export const DeployConfirmModal: React.FC<DeployConfirmModalProps> = ({ visible, appId, onConfirm }) => {
+    const { $l } = useI18n();
+
     if (!visible) return null;
 
     return (
         <div className="deploy-confirm-overlay">
             <div className="deploy-confirm-modal">
                 <h3>
-                    Deploy this app now?
+                    {$l('studio.deployConfirm.title')}
                 </h3>
                 <p>
-                    App ID: <span className="app-id">{appId || '-'}</span>
+                    {$l('studio.deployConfirm.appId')}: <span className="app-id">{appId || '-'}</span>
                 </p>
                 <div className="modal-actions">
                     <button
                         onClick={() => onConfirm(false)}
                         className="cancel-btn"
                     >
-                        Not now
+                        {$l('common.notNow')}
                     </button>
                     <button
                         onClick={() => onConfirm(true)}
                         className="confirm-btn"
                     >
-                        Deploy
+                        {$l('common.deploy')}
                     </button>
                 </div>
             </div>

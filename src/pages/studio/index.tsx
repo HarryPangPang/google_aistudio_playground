@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { usePlayground } from './hooks/usePlayground';
 import { Header } from './components/Header';
 import { ChatArea } from './components/ChatArea';
@@ -6,10 +6,11 @@ import { InputArea } from './components/InputArea';
 import { LoadingOverlay } from './components/LoadingOverlay';
 import { DeploymentModal } from './components/DeploymentModal';
 import { DeployConfirmModal } from './components/DeployConfirmModal';
-import { Sidebar } from './components/Sidebar';
+import { useLayout } from '../../context/LayoutContext';
 import './Studio.scss';
 
 const Playground: React.FC = () => {
+    const { toggleSidebar } = useLayout();
     const {
         deployUrl,
         setDeployUrl,
@@ -26,45 +27,22 @@ const Playground: React.FC = () => {
         handleDeploy,
         handleGenerate,
         handleDownload,
-        handleConfirmDeploy
+        handleConfirmDeploy,
+        startNewProject // Add this
     } = usePlayground();
-
-    const [sidebarVisible, setSidebarVisible] = useState(false);
-    const [history, setHistory] = useState<any[]>([]);
-
-    useEffect(() => {
-        const loadHistory = () => {
-            try {
-                const storedHistory = JSON.parse(localStorage.getItem('chat_history') || '[]');
-                setHistory(storedHistory);
-            } catch (e) {
-                console.error('Failed to load history:', e);
-            }
-        };
-
-        if (sidebarVisible) {
-            loadHistory();
-        }
-    }, [sidebarVisible]);
-
-    const handleHistorySelect = (driveid: string) => {
-        // Redirect to the selected chat
-        window.location.href = `/?driveid=${driveid}`;
-    };
-
-    const handleNewChat = () => {
-        window.location.href = '/';
-    };
 
     return (
         <div className="playground-container">
             <Header
                 isSaving={isSaving}
                 isDeploying={isDeploying}
+                chatContent={chatContent}
+                appId={pendingDeployAppId || ''}
                 onSave={handleSave}
                 onDownload={handleDownload}
                 onDeploy={handleDeploy}
-                onHistoryClick={() => setSidebarVisible(true)}
+                onMenuClick={toggleSidebar}
+                onNewChat={startNewProject} // Pass this prop
             />
 
             <div style={{ display: 'flex', flex: 1, overflow: 'hidden', position: 'relative' }}>
@@ -76,22 +54,6 @@ const Playground: React.FC = () => {
                     onGenerate={handleGenerate}
                 />
             </div>
-
-            <Sidebar 
-                visible={sidebarVisible}
-                history={history}
-                onSelect={handleHistorySelect}
-                onClose={() => setSidebarVisible(false)}
-                onNewChat={handleNewChat}
-            />
-
-            {/* Overlay for sidebar */}
-            {sidebarVisible && (
-                <div 
-                    onClick={() => setSidebarVisible(false)}
-                    className="sidebar-overlay"
-                />
-            )}
 
             <LoadingOverlay status={loadingStatus} />
 

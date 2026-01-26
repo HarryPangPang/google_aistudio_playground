@@ -1,4 +1,5 @@
 import React from 'react';
+import { useI18n } from '../../../context/I18nContext';
 import './css/InputArea.scss';
 
 interface InputAreaProps {
@@ -9,6 +10,8 @@ interface InputAreaProps {
 }
 
 export const InputArea: React.FC<InputAreaProps> = ({ prompt, setPrompt, isGenerating, onGenerate }) => {
+    const { $l } = useI18n();
+
     return (
         <div className="ai-studio-input-area">
             <div style={{
@@ -24,7 +27,7 @@ export const InputArea: React.FC<InputAreaProps> = ({ prompt, setPrompt, isGener
                 <textarea
                     value={prompt}
                     onChange={(e) => setPrompt(e.target.value)}
-                    placeholder="Describe your app..."
+                    placeholder={$l('studio.input.placeholder')}
                     style={{
                         width: '100%',
                         height: '60px',

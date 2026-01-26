@@ -1,8 +1,11 @@
 import { useState, useEffect } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom'; // Import useLocation and useNavigate
 import { api } from '../../../services/api';
 import { files as initialFiles } from '../../../fs/virtualFs';
 
 export function usePlayground() {
+    const location = useLocation(); // Hook for location
+    const navigate = useNavigate(); // Hook for navigation
     const [deployUrl, setDeployUrl] = useState('');
     const [appId, setAppId] = useState('');
     const [isSaving, setIsSaving] = useState(false);
@@ -10,7 +13,7 @@ export function usePlayground() {
     const [chatContent, setChatContent] = useState('');
     const [prompt, setPrompt] = useState('');
     const [isGenerating, setIsGenerating] = useState(false);
-    const [loadingStatus, setLoadingStatus] = useState(''); // 'creating', 'deploying', ''
+    const [loadingStatus, setLoadingStatus] = useState(''); 
     const [showDeployConfirm, setShowDeployConfirm] = useState(false);
     const [pendingDeployAppId, setPendingDeployAppId] = useState('');
 
@@ -26,13 +29,11 @@ export function usePlayground() {
     };
 
     const initHistory = async (driveid: string) => {
-        // Try local storage first
         try {
             const history = JSON.parse(localStorage.getItem('chat_history') || '[]');
             const item = history.find((i: any) => i.driveid === driveid);
             if (item && item.chatContent) {
                 setChatContent(item.chatContent);
-                // Also restore files if saved in history? For now simpler logic.
                 return;
             }
         } catch (e) {
@@ -51,44 +52,44 @@ export function usePlayground() {
     };
 
     const initApp = async () => {
-        const params = new URLSearchParams(window.location.search);
+        // Read params from the current location (more reliable in React Router context)
+        const params = new URLSearchParams(location.search);
         const driveId = params.get('driveid');
         const legacyId = params.get('id');
 
-        // Priority: driveid > id > new session
         const targetId = driveId || legacyId;
+
+        // Force reset state every time initApp runs (URL changes)
+        setAppId('');
+        setPendingDeployAppId('');
+        setChatContent('');
+        setFiles(initialFiles);
+        setPrompt('');
 
         if (targetId) {
             setAppId(targetId);
+            setPendingDeployAppId(targetId);
             try {
-                // If backend supports returning files, we would uncomment this
-                // const data: any = await api.getApp(targetId);
-                // if (data.success && data.data && data.data.files) {
-                //     setFiles(data.data.files);
-                // }
+                // If backend supports returning files...
                 console.log('targetId', targetId);
                 await initHistory(targetId);
             } catch (err: any) {
                 console.error('Failed to load app:', err);
             }
-        } else {
-            setAppId('');
-            setChatContent('');
-            // Reset to default files only if no targetId (new session)
-            setFiles(initialFiles);
         }
     };
 
+    // Re-run initApp whenever the URL search params change
     useEffect(() => {
         initApp();
-    }, []);
+    }, [location.search]);
+
+    // ... (rest of the functions: handleSave, handleDeploy, saveToHistory, handleGenerate, handleDownload, handleConfirmDeploy)
 
     const handleSave = async () => {
         setIsSaving(true);
         try {
             await api.saveApp(appId, files);
-            // Note: If we are in "New Session" mode, we might want to update the URL here
-            // so the user can bookmark it. But per requirements, we just keep it simple.
         } catch (err: any) {
             console.error('Save error:', err);
             alert('Save failed: ' + err.message);
@@ -101,22 +102,7 @@ export function usePlayground() {
         setIsDeploying(true);
         setDeployUrl('');
         try {
-            // Fetch latest files before deploying to ensure we have what was generated
-            // let currentFiles = files;
-            // try {
-            //     const data: any = await api.getApp(appId);
-            //     if (data.success && data.data && data.data.files) {
-            //         currentFiles = data.data.files;
-            //         setFiles(currentFiles);
-            //     }
-            // } catch (e) {
-            //     console.warn("Could not refresh files before deploy, using current state");
-            // }
-
-            // const payload: any = { files: currentFiles };
-
             const data: any = await api.deploywithcode({ id: appId });
-
             const url = `${window.location.origin}/${data.url}`;
             setDeployUrl(url);
         } catch (err: any) {
@@ -173,7 +159,7 @@ export function usePlayground() {
         if (!prompt.trim()) return;
 
         const currentPrompt = prompt;
-        setPrompt(''); // Clear input immediately
+        setPrompt(''); 
         setIsGenerating(true);
         setLoadingStatus('creating');
         setDeployUrl('');
@@ -206,20 +192,8 @@ export function usePlayground() {
             console.error('Failed to send chat message: ', error);
             setLoadingStatus('');
             setIsGenerating(false);
-        } finally {
-            if (loadingStatus === 'creating') {
-                // If we failed early, clear it. 
-            }
         }
     };
-
-    // Reset generating state when deploy finishes or fails
-    useEffect(() => {
-        if (!isDeploying && loadingStatus === '') {
-            setIsGenerating(false);
-        }
-    }, [isDeploying, loadingStatus]);
-
 
     const handleDownload = async () => {
         try {
@@ -272,6 +246,19 @@ export function usePlayground() {
         setIsGenerating(false);
     };
 
+    // Updated: use navigate instead of pushState
+    const startNewProject = () => {
+        // Reset local state immediately
+        setAppId('');
+        setPendingDeployAppId('');
+        setChatContent('');
+        setFiles(initialFiles);
+        setPrompt('');
+        
+        // Update URL, which will trigger useEffect -> initApp -> double ensure reset
+        navigate('/');
+    };
+
     return {
         deployUrl,
         setDeployUrl,
@@ -291,6 +278,7 @@ export function usePlayground() {
         handleDownload,
         handleConfirmDeploy,
         files,
-        handleFileChange
+        handleFileChange,
+        startNewProject
     };
 }

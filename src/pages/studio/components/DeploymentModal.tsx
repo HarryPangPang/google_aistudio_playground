@@ -1,4 +1,5 @@
 import React from 'react';
+import { useI18n } from '../../../context/I18nContext';
 import './css/DeploymentModal.scss';
 
 interface DeploymentModalProps {
@@ -7,13 +8,15 @@ interface DeploymentModalProps {
 }
 
 export const DeploymentModal: React.FC<DeploymentModalProps> = ({ deployUrl, onClose }) => {
+    const { $l } = useI18n();
+
     if (!deployUrl) return null;
 
     return (
         <div className="deployment-modal-overlay">
             <div className="deployment-modal">
-                <h3>Deployment Ready</h3>
-                <p>Your project is live! Share this URL with others.</p>
+                <h3>{$l('studio.deploySuccess.title')}</h3>
+                <p>{$l('studio.deploySuccess.desc')}</p>
 
                 <div className="url-box">
                     <span>{deployUrl}</span>
@@ -24,7 +27,7 @@ export const DeploymentModal: React.FC<DeploymentModalProps> = ({ deployUrl, onC
                         onClick={onClose}
                         className="close-btn"
                     >
-                        Close
+                        {$l('common.close')}
                     </button>
                     <button
                         onClick={() => {
@@ -32,7 +35,7 @@ export const DeploymentModal: React.FC<DeploymentModalProps> = ({ deployUrl, onC
                         }}
                         className="open-btn"
                     >
-                        Open Site
+                        {$l('common.openSite')}
                     </button>
                 </div>
             </div>

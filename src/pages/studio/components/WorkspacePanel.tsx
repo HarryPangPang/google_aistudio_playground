@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import MonacoEditor from '../../../editor/MonacoEditor';
 import PreviewIframe from '../../../runner/PreviewIframe';
 import { bundleFiles } from '../../../utils/bundler';
+import { useI18n } from '../../../context/I18nContext';
 import './css/WorkspacePanel.scss';
 
 interface WorkspacePanelProps {
@@ -13,6 +14,7 @@ export const WorkspacePanel: React.FC<WorkspacePanelProps> = ({ files, onFileCha
     const [activeTab, setActiveTab] = useState<'preview' | 'code'>('preview');
     const [previewContent, setPreviewContent] = useState('');
     const [refreshKey, setRefreshKey] = useState(0);
+    const { $l } = useI18n();
 
     // Hardcoded for now, but should select from file tree in future
     const activeFile = 'App.tsx'; 
@@ -37,19 +39,19 @@ export const WorkspacePanel: React.FC<WorkspacePanelProps> = ({ files, onFileCha
                     className={`tab-btn ${activeTab === 'preview' ? 'active' : ''}`}
                     onClick={() => setActiveTab('preview')}
                 >
-                    Preview
+                    {$l('common.preview')}
                 </button>
                 <button 
                     className={`tab-btn ${activeTab === 'code' ? 'active' : ''}`}
                     onClick={() => setActiveTab('code')}
                 >
-                    Code
+                    {$l('common.code')}
                 </button>
 
                 <button 
                     className="refresh-btn"
                     onClick={() => setRefreshKey(k => k + 1)}
-                    title="Refresh Preview"
+                    title={$l('studio.preview.refreshTooltip')}
                 >
                     <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>refresh</span>
                 </button>
