@@ -1,4 +1,4 @@
-import Playground from './pages/Playground';
+import Playground from './pages/studio';
 import './index.css';
 
 export default function App() {
