@@ -31,6 +31,8 @@ export const zhCN = {
         input: {
             placeholder: '描述你想要的应用...',
             generating: '...',
+            modelLabel: '模型',
+            send: '生成',
         },
         chat: {
             emptyState: '今天你想构建什么？',
@@ -130,6 +132,8 @@ export const enUS = {
         input: {
             placeholder: 'Describe your app...',
             generating: '...',
+            modelLabel: 'Model',
+            send: 'Generate',
         },
         chat: {
             emptyState: 'What would you like to build today?',

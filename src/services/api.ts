@@ -49,10 +49,10 @@ export const api = {
     getChatContent: (driveid: string) => {
         return client.get('/api/chatcontent', { params: { driveid } });
     },
-    initChatContent: (prompt: string) => {
-        return client.post('/api/initChatContent', { prompt });
+    initChatContent: (prompt: string, model?: number) => {
+        return client.post('/api/initChatContent', { prompt, model });
     },
-    sendChatMsg: (payload: { prompt: string, driveid: string }) => {
+    sendChatMsg: (payload: { prompt: string, driveid: string, model?: number }) => {
         return client.post('/api/chatmsg', payload);
     },
     deploywithcode: (data: any) => {

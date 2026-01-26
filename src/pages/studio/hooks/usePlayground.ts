@@ -3,6 +3,26 @@ import { useLocation, useNavigate } from 'react-router-dom'; // Import useLocati
 import { api } from '../../../services/api';
 import { files as initialFiles } from '../../../fs/virtualFs';
 
+const MODEL_OPTIONS = [
+    {
+        label: 'Gemini 3 Flash Preview',
+        value: 1,   
+    },
+    {
+        label: 'Gemini 3 Pro Preview',
+        value: 2,   
+    },
+    {
+        label: 'Gemini 2.5 Pro',
+        value: 3,   
+    },
+    {
+        label: 'Gemini 2.5 Flash',
+        value: 4,   
+    },
+];
+const DEFAULT_MODEL = MODEL_OPTIONS[0];
+
 export function usePlayground() {
     const location = useLocation(); // Hook for location
     const navigate = useNavigate(); // Hook for navigation
@@ -12,6 +32,7 @@ export function usePlayground() {
     const [isDeploying, setIsDeploying] = useState(false);
     const [chatContent, setChatContent] = useState('');
     const [prompt, setPrompt] = useState('');
+    const [model, setModel] = useState(DEFAULT_MODEL);
     const [isGenerating, setIsGenerating] = useState(false);
     const [loadingStatus, setLoadingStatus] = useState(''); 
     const [showDeployConfirm, setShowDeployConfirm] = useState(false);
@@ -34,6 +55,7 @@ export function usePlayground() {
             const item = history.find((i: any) => i.driveid === driveid);
             if (item && item.chatContent) {
                 setChatContent(item.chatContent);
+                setModel(item.model || DEFAULT_MODEL);
                 return;
             }
         } catch (e) {
@@ -65,6 +87,7 @@ export function usePlayground() {
         setChatContent('');
         setFiles(initialFiles);
         setPrompt('');
+        setModel(DEFAULT_MODEL);
 
         if (targetId) {
             setAppId(targetId);
@@ -114,7 +137,7 @@ export function usePlayground() {
         }
     };
 
-    const saveToHistory = (id: string, currentPrompt: string, chatContent: string) => {
+    const saveToHistory = (id: string, currentPrompt: string, chatContent: string, selectedModel: number) => {
         try {
             const history = JSON.parse(localStorage.getItem('chat_history') || '[]');
             let existingIndex = -1;
@@ -132,6 +155,7 @@ export function usePlayground() {
                     ...item,
                     prompt: prompts,
                     chatContent: chatContent,
+                    model: selectedModel,
                     updatedAt: Date.now()
                 };
                 
@@ -145,6 +169,7 @@ export function usePlayground() {
                     filepath: '',
                     prompt: [currentPrompt],
                     chatContent: chatContent,
+                    model: selectedModel,
                     createdAt: Date.now()
                 };
                 history.unshift(newRecord);
@@ -165,23 +190,24 @@ export function usePlayground() {
         setDeployUrl('');
         try {
             if (!appId) {
-                const res: any = await api.initChatContent(currentPrompt);
+                const res: any = await api.initChatContent(currentPrompt, model.value);
                 const chatDomContent = res?.data?.chatDomContent || res?.data?.chatDomContent || '';
                 const driveid = res?.data?.driveid || res?.driveid || '';
                 setChatContent(chatDomContent);
                 setAppId(driveid);
                 setPendingDeployAppId(driveid);
 
-                saveToHistory(driveid, currentPrompt, chatDomContent);
+                saveToHistory(driveid, currentPrompt, chatDomContent, model?.value);
             } else {
                 const res: any = await api.sendChatMsg({
                     prompt: currentPrompt,
                     driveid: appId,
+                    model: model.value
                 });
                 const chatDomContent = res?.chatDomContent || '';
                 setChatContent(chatDomContent);
                 setPendingDeployAppId(appId);
-                saveToHistory(appId, currentPrompt, chatDomContent);
+                saveToHistory(appId, currentPrompt, chatDomContent, model.value);
             }
 
             setLoadingStatus('');
@@ -254,6 +280,7 @@ export function usePlayground() {
         setChatContent('');
         setFiles(initialFiles);
         setPrompt('');
+        setModel(DEFAULT_MODEL);
         
         // Update URL, which will trigger useEffect -> initApp -> double ensure reset
         navigate('/');
@@ -268,6 +295,9 @@ export function usePlayground() {
         chatContent,
         prompt,
         setPrompt,
+        model,
+        setModel,
+        modelOptions: MODEL_OPTIONS,
         isGenerating,
         loadingStatus,
         showDeployConfirm,

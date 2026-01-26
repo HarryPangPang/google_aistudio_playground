@@ -11,4 +11,154 @@
     z-index: 90;
     height: fit-content;
     min-height: 200px;
+
+    .input-card {
+        width: 100%;
+        max-width: 800px;
+        position: relative;
+        background-color: #f9f9f9;
+        border-radius: 16px;
+        border: 1px solid #e0e0e0;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+        transition: border-color 0.2s, box-shadow 0.2s;
+        padding: 16px 16px 14px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .input-toolbar {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 13px;
+        color: #666;
+        margin-bottom: 8px;
+    }
+
+    .model-selector {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        background: #f0f0f0;
+        border-radius: 8px;
+        padding: 4px 10px;
+        position: relative;
+        cursor: pointer;
+        transition: background 0.2s;
+        max-width: fit-content;
+
+        &:hover {
+            background: #e8e8e8;
+        }
+
+        &.locked {
+            cursor: default;
+            background: transparent;
+            padding-left: 0;
+            
+            &:hover {
+                background: transparent;
+            }
+
+            .model-name {
+                color: #888;
+                font-weight: 500;
+            }
+        }
+    }
+
+    .model-icon {
+        color: #666;
+        display: flex;
+        align-items: center;
+        
+        svg {
+            width: 14px;
+            height: 14px;
+        }
+    }
+
+    .model-select {
+        appearance: none;
+        -webkit-appearance: none;
+        background: transparent;
+        border: none;
+        font-size: 13px;
+        color: #333;
+        font-weight: 500;
+        cursor: pointer;
+        outline: none;
+        padding-right: 16px;
+        z-index: 2;
+        position: relative;
+        font-family: inherit;
+    }
+
+    .model-name {
+        font-size: 13px;
+        color: #333;
+        font-weight: 500;
+    }
+
+    .select-arrow {
+        position: absolute;
+        right: 8px;
+        top: 50%;
+        transform: translateY(-50%);
+        pointer-events: none;
+        color: #666;
+        display: flex;
+        align-items: center;
+        
+        svg {
+            width: 12px;
+            height: 12px;
+        }
+    }
+
+    .input-body {
+        position: relative;
+        width: 100%;
+    }
+
+    .prompt-input {
+        width: 100%;
+        height: 60px;
+        padding: 16px 60px 16px 20px;
+        border: none;
+        resize: none;
+        outline: none;
+        font-size: 15px;
+        line-height: 1.5;
+        font-family: inherit;
+        background-color: transparent;
+        box-sizing: border-box;
+    }
+
+    .send-btn {
+        position: absolute;
+        right: 12px;
+        bottom: 12px;
+        width: 36px;
+        height: 36px;
+        background-color: #000;
+        color: #fff;
+        border: none;
+        border-radius: 50%;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: background-color 0.2s;
+    }
+
+    .send-btn:disabled {
+        background-color: #e0e0e0;
+        cursor: not-allowed;
+    }
+
+    .loading-dots {
+        font-size: 12px;
+    }
 }

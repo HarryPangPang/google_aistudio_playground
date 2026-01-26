@@ -14,11 +14,15 @@ const Playground: React.FC = () => {
     const {
         deployUrl,
         setDeployUrl,
+        appId,
         isSaving,
         isDeploying,
         chatContent,
         prompt,
         setPrompt,
+        model,
+        setModel,
+        modelOptions,
         isGenerating,
         loadingStatus,
         showDeployConfirm,
@@ -30,6 +34,8 @@ const Playground: React.FC = () => {
         handleConfirmDeploy,
         startNewProject // Add this
     } = usePlayground();
+
+    const isProjectCreated = !!appId || chatContent.length > 0;
 
     return (
         <div className="playground-container">
@@ -50,8 +56,12 @@ const Playground: React.FC = () => {
                 <InputArea
                     prompt={prompt}
                     setPrompt={setPrompt}
+                    model={model}
+                    setModel={setModel}
+                    modelOptions={modelOptions}
                     isGenerating={isGenerating}
                     onGenerate={handleGenerate}
+                    isProjectCreated={isProjectCreated}
                 />
             </div>
 
