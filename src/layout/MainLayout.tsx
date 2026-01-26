@@ -73,12 +73,10 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                     <div className="logo-container">
                         <img src={monsterImg} alt="Monster" />
                     </div>
-                    {!sidebarCollapsed && (
-                        <div className="brand-text">
-                            <h1>AI Studio</h1>
-                            <span>Playground</span>
-                        </div>
-                    )}
+                    <div className={`brand-text ${sidebarCollapsed ? 'hidden' : ''}`}>
+                        <h1>AI Studio</h1>
+                        <span>Playground</span>
+                    </div>
                 </div>
 
                 {/* Navigation */}
@@ -99,7 +97,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                                     className={btnClass}
                                 >
                                     <Icon className={isActive ? '' : ''} />
-                                    {!sidebarCollapsed && <span>{item.label}</span>}
+                                    <span className={`menu-label ${sidebarCollapsed ? 'hidden' : ''}`}>{item.label}</span>
                                 </button>
                             );
                         })}
@@ -115,12 +113,10 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                             title={sidebarCollapsed ? currentLang.label : ''}
                         >
                             <span className="flag">{currentLang.flag}</span>
-                            {!sidebarCollapsed && (
-                                <>
-                                    <span className="label-text">{currentLang.label}</span>
-                                    <span className="arrow">▼</span>
-                                </>
-                            )}
+                            <div className={`lang-info ${sidebarCollapsed ? 'hidden' : ''}`}>
+                                <span className="label-text">{currentLang.label}</span>
+                                <span className="arrow">▼</span>
+                            </div>
                         </button>
 
                         {isLangMenuOpen && (
@@ -146,6 +142,42 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
 
             {/* Main Content */}
             <main className="main-content">
+                {/* Mobile Header (Visible only on mobile) */}
+                <header className="mobile-header">
+                    <div className="logo-container">
+                        <img src={monsterImg} alt="Monster" />
+                        <span>AI Studio</span>
+                    </div>
+                    
+                    {/* Mobile Language Switcher */}
+                    <div className="mobile-lang-switch">
+                        <button 
+                            className="mobile-lang-btn"
+                            onClick={() => setIsLangMenuOpen(!isLangMenuOpen)}
+                        >
+                            <span className="flag">{currentLang.flag}</span>
+                            <span className="code">{currentLang.code.split('-')[1]}</span>
+                        </button>
+
+                        {isLangMenuOpen && (
+                            <div className="mobile-lang-menu">
+                                {languages.map((lang) => (
+                                    <button
+                                        key={lang.code}
+                                        className={`menu-item ${language === lang.code ? 'active' : ''}`}
+                                        onClick={() => {
+                                            setLanguage(lang.code);
+                                            setIsLangMenuOpen(false);
+                                        }}
+                                    >
+                                        <span className="flag">{lang.flag}</span>
+                                        <span>{lang.label}</span>
+                                    </button>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                </header>
                 {children}
             </main>
         </div>

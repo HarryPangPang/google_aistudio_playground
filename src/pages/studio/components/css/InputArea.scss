@@ -158,7 +158,25 @@
         cursor: not-allowed;
     }
 
-    .loading-dots {
-        font-size: 12px;
+    @media (max-width: 768px) {
+        min-height: auto;
+        padding: 16px;
+        
+        .input-card {
+            padding: 12px 12px 10px;
+        }
+
+        .prompt-input {
+            height: 50px;
+            font-size: 14px;
+            padding: 12px 50px 12px 12px;
+        }
+
+        .send-btn {
+            width: 32px;
+            height: 32px;
+            right: 8px;
+            bottom: 8px;
+        }
     }
 }

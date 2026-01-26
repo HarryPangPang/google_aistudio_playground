@@ -12,6 +12,10 @@
         flex-shrink: 0;
         transition: width 0.3s ease;
         overflow: hidden;
+        
+        .hidden {
+            display: none;
+        }
 
         &.collapsed {
             width: 80px;
@@ -276,5 +280,179 @@
         flex: 1;
         overflow: hidden;
         position: relative;
+
+        .mobile-header {
+            display: none;
+        }
     }
 
+
+@media (max-width: 768px) {
+    .main-layout {
+        flex-direction: column-reverse;
+
+        .sidebar {
+            width: 100% !important;
+            height: auto;
+            flex-direction: row;
+            border-right: none;
+            border-top: 1px solid #f0f0f0;
+            padding: 0;
+            z-index: 1000;
+            background-color: #fff;
+
+            &.collapsed,
+            &.expanded {
+                width: 100%;
+            }
+
+            .brand-section {
+                display: none;
+            }
+
+            .user-section {
+                display: none;
+            }
+
+            .nav-section {
+                padding: 0;
+                width: 100%;
+
+                .menu-list {
+                    flex-direction: row;
+                    justify-content: space-between; // Use space-between or flex-start with flex:1
+                    gap: 0;
+                    padding: 0; // Remove vertical padding
+                    height: 56px; // Fixed height for bottom bar
+
+                    .menu-btn {
+                        flex: 1; // Distribute space equally
+                        width: 0; // Fix for flexbox overflow
+                        flex-direction: column;
+                        justify-content: center;
+                        align-items: center;
+                        padding: 4px;
+                        gap: 2px; // Reduce gap
+                        border-radius: 0; // Remove border radius for full bar feel or keep it small
+                        font-size: 10px;
+                        height: 100%;
+                        
+                        // Override inline styles logic for span
+                        span {
+                            display: block !important;
+                            font-size: 10px;
+                            line-height: 1;
+                            white-space: nowrap;
+                            overflow: hidden;
+                            text-overflow: ellipsis;
+                            width: 100%;
+                            text-align: center;
+                            padding: 0 2px;
+                        }
+
+                        &.create-btn {
+                            margin-bottom: 0;
+                            background-color: transparent;
+                            box-shadow: none;
+                            color: #4B5563;
+                            padding: 4px;
+
+                            &.active {
+                                background-color: transparent;
+                                color: #7C3AED;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        
+        .main-content {
+             height: calc(100vh - 56px); // Adjust based on bottom nav height (approx 56px)
+             display: flex;
+             flex-direction: column;
+
+             .mobile-header {
+                 display: flex;
+                 align-items: center;
+                 justify-content: space-between;
+                 padding: 0 16px;
+                 height: 48px;
+                 background-color: #fff;
+                 border-bottom: 1px solid #f0f0f0;
+                 flex-shrink: 0;
+                 z-index: 100;
+
+                 .logo-container {
+                     display: flex;
+                     align-items: center;
+                     gap: 8px;
+                     font-weight: 700;
+                     color: #1f1f1f;
+                     font-size: 16px;
+
+                     img {
+                         width: 24px;
+                         height: 24px;
+                         border-radius: 50%;
+                     }
+                 }
+
+                 .mobile-lang-switch {
+                     position: relative;
+
+                     .mobile-lang-btn {
+                         display: flex;
+                         align-items: center;
+                         gap: 4px;
+                         background: #f3f4f6;
+                         border: none;
+                         padding: 4px 8px;
+                         border-radius: 12px;
+                         font-size: 12px;
+                         font-weight: 600;
+                         color: #374151;
+                         cursor: pointer;
+                     }
+
+                     .mobile-lang-menu {
+                         position: absolute;
+                         top: 100%;
+                         right: 0;
+                         margin-top: 8px;
+                         background: white;
+                         border: 1px solid #e5e7eb;
+                         border-radius: 8px;
+                         box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+                         padding: 4px;
+                         min-width: 120px;
+                         z-index: 1001;
+
+                         .menu-item {
+                             display: flex;
+                             align-items: center;
+                             gap: 8px;
+                             padding: 8px 12px;
+                             width: 100%;
+                             border: none;
+                             background: transparent;
+                             text-align: left;
+                             font-size: 13px;
+                             cursor: pointer;
+                             border-radius: 4px;
+
+                             &:hover {
+                                 background-color: #f3f4f6;
+                             }
+                             
+                             &.active {
+                                 background-color: #eff6ff;
+                                 color: #2563eb;
+                             }
+                         }
+                     }
+                 }
+             }
+        }
+    }
+}

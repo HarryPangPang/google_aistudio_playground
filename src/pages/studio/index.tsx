@@ -51,7 +51,7 @@ const Playground: React.FC = () => {
                 onNewChat={startNewProject} // Pass this prop
             />
 
-            <div style={{ display: 'flex', flex: 1, overflow: 'hidden', position: 'relative' }}>
+            <div className="studio-content-wrapper">
                 <ChatArea chatContent={chatContent} />
                 <InputArea
                     prompt={prompt}

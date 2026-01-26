@@ -77,4 +77,52 @@
             }
         }
     }
+
+    @media (max-width: 768px) {
+        padding: 20px 16px 80px 16px;
+
+        .rank-title {
+            font-size: 24px;
+        }
+
+        .rank-item {
+            padding: 16px;
+            gap: 12px;
+            flex-wrap: wrap; // Allow wrapping if needed, though with grid it might be better
+
+            .rank-number {
+                font-size: 20px;
+                width: 30px;
+                flex-shrink: 0;
+            }
+
+            .game-icon-placeholder {
+                width: 48px;
+                height: 48px;
+                flex-shrink: 0;
+            }
+
+            .rank-info {
+                min-width: 0; // Fix for flex item overflow
+                
+                .game-title {
+                    font-size: 14px;
+                    white-space: nowrap;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                }
+                
+                .game-meta {
+                    font-size: 12px;
+                }
+            }
+
+            .play-button {
+                padding: 6px 12px;
+                font-size: 12px;
+                white-space: nowrap;
+                margin-left: auto; // Push to right if wrapping happens or just aligning
+            }
+        }
+    }
 }

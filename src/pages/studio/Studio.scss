@@ -7,13 +7,21 @@
     color: #1f1f1f;
     position: relative;
 
-    .sidebar-overlay {
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background-color: rgba(0,0,0,0.3);
-        z-index: 900;
+    .studio-content-wrapper {
+        display: flex;
+        flex: 1;
+        overflow: hidden;
+        position: relative;
+    }
+
+    @media (max-width: 768px) {
+        .studio-content-wrapper {
+            flex-direction: column;
+            
+            // Adjust chat area to leave space for input area if needed,
+            // but actually InputArea is absolute positioned in bottom?
+            // InputArea: position: absolute; bottom: 0;
+            // So ChatArea just needs padding-bottom.
+        }
     }
 }

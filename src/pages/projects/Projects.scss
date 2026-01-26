@@ -2,7 +2,6 @@
     padding: 40px;
     max-width: 1200px;
     margin: 0 auto;
-
     .projects-title {
         font-size: 32px;
         font-weight: 800;
@@ -99,10 +98,15 @@
             font-size: 13px;
         }
 
-        .project-updated {
-            margin: 4px 0 0 0;
-            color: #999;
-            font-size: 12px;
+    @media (max-width: 768px) {
+        padding: 20px 16px 20px 16px;
+
+        .projects-title {
+            font-size: 24px;
+        }
+
+        .projects-grid {
+            grid-template-columns: 1fr;
         }
     }
-}
+}}

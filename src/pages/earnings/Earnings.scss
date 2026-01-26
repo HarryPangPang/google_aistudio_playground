@@ -186,47 +186,42 @@
         }
     }
 
-    .pro-banner {
-        margin-top: 40px;
-        background: linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%);
-        border-radius: 20px;
-        padding: 40px;
-        color: white;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        box-shadow: 0 20px 40px -10px rgba(124, 58, 237, 0.4);
-        margin-bottom: 100px;
-        .content {
-            max-width: 500px;
+    @media (max-width: 768px) {
+        padding: 20px 16px 80px 16px;
 
-            h2 {
-                margin: 0 0 12px 0;
-                font-size: 28px;
-                font-weight: 800;
+        .header-section {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 16px;
+
+            h1 {
+                font-size: 24px;
             }
 
-            p {
-                margin: 0;
-                opacity: 0.9;
-                font-size: 16px;
-                line-height: 1.5;
+            .upgrade-btn {
+                width: 100%;
+                justify-content: center;
             }
         }
 
-        button {
-            background: white;
-            color: #4f46e5;
-            border: none;
-            padding: 16px 32px;
-            border-radius: 12px;
-            font-weight: 700;
-            font-size: 16px;
-            cursor: pointer;
-            transition: transform 0.2s;
+        .stats-grid {
+            grid-template-columns: 1fr;
+            gap: 16px;
+        }
 
-            &:hover {
-                transform: scale(1.05);
+        .pro-banner {
+            flex-direction: column;
+            gap: 24px;
+            padding: 24px;
+            text-align: center;
+            margin-bottom: 40px;
+
+            .content h2 {
+                font-size: 22px;
+            }
+
+            button {
+                width: 100%;
             }
         }
     }
