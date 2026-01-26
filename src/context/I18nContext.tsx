@@ -25,9 +25,17 @@ const I18nContext = createContext<I18nContextType>({
     t: zhCN,
     $l: (key: string) => key,
 });
-
+const LANGUAGE_KEY = 'ai_studio_language';
 export const I18nProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    const [language, setLanguage] = useState<Language>('zh-CN');
+    const [language, setLanguageState] = useState<Language>(() => {
+        const saved = localStorage.getItem(LANGUAGE_KEY);
+        return (saved === 'zh-CN' || saved === 'en-US') ? saved : 'zh-CN';
+    });
+
+    const setLanguage = (lang: Language) => {
+        setLanguageState(lang);
+        localStorage.setItem(LANGUAGE_KEY, lang);
+    };
 
     const t = language === 'zh-CN' ? zhCN : enUS;
     const $l = (key: string) => {

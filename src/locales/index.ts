@@ -27,7 +27,6 @@ export const zhCN = {
         header: {
             deployTooltip: '生成内容后即可部署',
             deployTitle: '部署应用',
-            newChatTooltip: '新建项目',
         },
         input: {
             placeholder: '描述你想要的应用...',
@@ -127,7 +126,6 @@ export const enUS = {
         header: {
             deployTooltip: 'Create content to deploy',
             deployTitle: 'Deploy App',
-            newChatTooltip: 'New Project',
         },
         input: {
             placeholder: 'Describe your app...',

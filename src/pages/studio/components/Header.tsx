@@ -28,17 +28,6 @@ export const Header: React.FC<HeaderProps> = ({ isSaving, isDeploying, chatConte
                 >
                     ☰
                 </button>
-                {/* Show 'New Chat' button only if we are in a session (appId exists) and callback provided */}
-                {appId && onNewChat && (
-                    <button
-                        onClick={onNewChat}
-                        className="action-btn secondary"
-                        title={$l('studio.header.newChatTooltip')}
-                        style={{ padding: '8px 12px', border: 'none', background: '#f3f4f6' }}
-                    >
-                        <span style={{ fontSize: '16px' }}>+</span>
-                    </button>
-                )}
             </div>
 
             <div className="header-actions">
