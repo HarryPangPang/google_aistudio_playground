@@ -67,6 +67,16 @@ const Playground: React.FC = () => {
                 onHistoryClick={() => setSidebarVisible(true)}
             />
 
+            <div style={{ display: 'flex', flex: 1, overflow: 'hidden', position: 'relative' }}>
+                <ChatArea chatContent={chatContent} />
+                <InputArea
+                    prompt={prompt}
+                    setPrompt={setPrompt}
+                    isGenerating={isGenerating}
+                    onGenerate={handleGenerate}
+                />
+            </div>
+
             <Sidebar 
                 visible={sidebarVisible}
                 history={history}
@@ -83,16 +93,7 @@ const Playground: React.FC = () => {
                 />
             )}
 
-            <ChatArea chatContent={chatContent} />
-
             <LoadingOverlay status={loadingStatus} />
-
-            <InputArea
-                prompt={prompt}
-                setPrompt={setPrompt}
-                isGenerating={isGenerating}
-                onGenerate={handleGenerate}
-            />
 
             <DeploymentModal
                 deployUrl={deployUrl}

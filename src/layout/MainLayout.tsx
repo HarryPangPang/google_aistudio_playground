@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { IconPlus, IconRobot, IconGame, IconTrophy, IconFolder } from '../components/Icons';
+import { IconPlus, IconRobot, IconGame, IconTrophy, IconFolder, IconChart } from '../components/Icons';
 import monsterImg from '../assets/monster.png';
 
 interface MainLayoutProps {
@@ -14,6 +14,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
     const menuItems = [
         { id: 'create', label: '创建项目', icon: IconPlus, path: '/' },
         { id: 'projects', label: '我的项目', icon: IconFolder, path: '/projects' },
+        { id: 'earnings', label: '收益中心', icon: IconChart, path: '/earnings' },
         { id: 'robot-market', label: 'AI机器人市场', icon: IconRobot, path: '/robot-market' },
         { id: 'game-market', label: '游戏市场', icon: IconGame, path: '/game-market' },
         { id: 'ranking', label: '热门游戏排行榜', icon: IconTrophy, path: '/ranking' },

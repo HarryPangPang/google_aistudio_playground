@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { api } from '../../../services/api';
+import { files as initialFiles } from '../../../fs/virtualFs';
 
 export function usePlayground() {
     const [deployUrl, setDeployUrl] = useState('');
@@ -13,8 +14,16 @@ export function usePlayground() {
     const [showDeployConfirm, setShowDeployConfirm] = useState(false);
     const [pendingDeployAppId, setPendingDeployAppId] = useState('');
 
-    // Keep files state for deployment/download, even if not displayed
-    const [files, setFiles] = useState<Record<string, string>>({});
+    // Keep files state for deployment/download
+    // Initialize with default template to ensure preview works out of the box
+    const [files, setFiles] = useState<Record<string, string>>(initialFiles);
+
+    const handleFileChange = (path: string, content: string) => {
+        setFiles(prev => ({
+            ...prev,
+            [path]: content
+        }));
+    };
 
     const initHistory = async (driveid: string) => {
         // Try local storage first
@@ -23,6 +32,7 @@ export function usePlayground() {
             const item = history.find((i: any) => i.driveid === driveid);
             if (item && item.chatContent) {
                 setChatContent(item.chatContent);
+                // Also restore files if saved in history? For now simpler logic.
                 return;
             }
         } catch (e) {
@@ -51,7 +61,7 @@ export function usePlayground() {
         if (targetId) {
             setAppId(targetId);
             try {
-                // 保留代码下次用
+                // If backend supports returning files, we would uncomment this
                 // const data: any = await api.getApp(targetId);
                 // if (data.success && data.data && data.data.files) {
                 //     setFiles(data.data.files);
@@ -64,7 +74,8 @@ export function usePlayground() {
         } else {
             setAppId('');
             setChatContent('');
-            setFiles({});
+            // Reset to default files only if no targetId (new session)
+            setFiles(initialFiles);
         }
     };
 
@@ -278,6 +289,8 @@ export function usePlayground() {
         handleDeploy,
         handleGenerate,
         handleDownload,
-        handleConfirmDeploy
+        handleConfirmDeploy,
+        files,
+        handleFileChange
     };
 }
