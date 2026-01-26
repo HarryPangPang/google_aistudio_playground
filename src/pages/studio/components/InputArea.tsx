@@ -38,13 +38,19 @@ export const InputArea: React.FC<InputAreaProps> = ({
                             </svg>
                         </div>
                         {isProjectCreated ? (
-                            <span className="model-name">{model}</span>
+                            <span className="model-name">{model.label}</span>
                         ) : (
                             <select
                                 id="model-select"
                                 className="model-select"
-                                value={model}
-                                onChange={(e) => setModel(e.target.value)}
+                                value={model.value}
+                                onChange={(e) => {
+                                    const selectedValue = Number(e.target.value);
+                                    const selectedModel = modelOptions.find(opt => opt.value === selectedValue);
+                                    if (selectedModel) {
+                                        setModel(selectedModel);
+                                    }
+                                }}
                             >
                                 {modelOptions.map((option) => (
                                     <option key={option.value} value={option.value}>
