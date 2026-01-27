@@ -72,5 +72,8 @@ export const api = {
                 'Content-Type': 'multipart/form-data'
             }
         });
+    },
+    getBuildRecord: () => {
+        return client.get('/api/buildRecord');
     }
 };
