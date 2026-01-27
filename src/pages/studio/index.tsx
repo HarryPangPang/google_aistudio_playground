@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { usePlayground } from './hooks/usePlayground';
 import { Header } from './components/Header';
 import { ChatArea } from './components/ChatArea';
@@ -6,11 +6,14 @@ import { InputArea } from './components/InputArea';
 import { LoadingOverlay } from './components/LoadingOverlay';
 import { DeploymentModal } from './components/DeploymentModal';
 import { DeployConfirmModal } from './components/DeployConfirmModal';
+import { ImportModal } from './components/ImportModal';
 import { useLayout } from '../../context/LayoutContext';
 import './Studio.scss';
 
 const Playground: React.FC = () => {
     const { toggleSidebar } = useLayout();
+    const [showImportModal, setShowImportModal] = useState(false);
+    
     const {
         deployUrl,
         setDeployUrl,
@@ -32,7 +35,8 @@ const Playground: React.FC = () => {
         handleGenerate,
         handleDownload,
         handleConfirmDeploy,
-        startNewProject // Add this
+        startNewProject, // Add this
+        handleImport
     } = usePlayground();
 
     const isProjectCreated = !!appId || chatContent.length > 0;
@@ -49,6 +53,7 @@ const Playground: React.FC = () => {
                 onDeploy={handleDeploy}
                 onMenuClick={toggleSidebar}
                 onNewChat={startNewProject} // Pass this prop
+                onImport={() => setShowImportModal(true)}
             />
 
             <div className="studio-content-wrapper">
@@ -76,6 +81,12 @@ const Playground: React.FC = () => {
                 visible={showDeployConfirm}
                 appId={pendingDeployAppId}
                 onConfirm={handleConfirmDeploy}
+            />
+            
+            <ImportModal 
+                visible={showImportModal}
+                onClose={() => setShowImportModal(false)}
+                onImport={handleImport}
             />
         </div>
     );

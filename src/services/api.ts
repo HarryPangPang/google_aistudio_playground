@@ -58,4 +58,7 @@ export const api = {
     deploywithcode: (data: any) => {
         return client.post('/api/deploywithcode', { data });
     },
+    importFromUrl: (url: string) => {
+        return client.post('/api/import', { url });
+    }
 };

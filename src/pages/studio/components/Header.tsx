@@ -12,9 +12,10 @@ interface HeaderProps {
     onDeploy: () => void;
     onMenuClick: () => void;
     onNewChat?: () => void; // Add optional prop
+    onImport?: () => void; // Add import prop
 }
 
-export const Header: React.FC<HeaderProps> = ({ isSaving, isDeploying, chatContent, appId, onSave, onDownload, onDeploy, onMenuClick, onNewChat }) => {
+export const Header: React.FC<HeaderProps> = ({ isSaving, isDeploying, chatContent, appId, onSave, onDownload, onDeploy, onMenuClick, onNewChat, onImport }) => {
     const canDeploy = !!appId && chatContent.length > 0;
     const { $l } = useI18n();
 
@@ -31,6 +32,16 @@ export const Header: React.FC<HeaderProps> = ({ isSaving, isDeploying, chatConte
             </div>
 
             <div className="header-actions">
+                {/* Import Button */}
+                 <button
+                    onClick={onImport}
+                    className="action-btn secondary"
+                    title={$l('studio.header.importTooltip')}
+                >
+                    <span className="icon">📥</span>
+                    {$l('common.import')}
+                </button>
+
                 <button
                     onClick={onDeploy}
                     disabled={isDeploying || !canDeploy}

@@ -5,6 +5,7 @@ export const zhCN = {
         close: '关闭',
         cancel: '取消',
         confirm: '确认',
+        import: '链接部署',
         loading: '加载中...',
         save: '保存',
         download: '下载',
@@ -27,6 +28,7 @@ export const zhCN = {
         header: {
             deployTooltip: '生成内容后即可部署',
             deployTitle: '部署应用',
+            importTooltip: '链接部署',
         },
         input: {
             placeholder: '描述你想要的应用...',
@@ -50,6 +52,15 @@ export const zhCN = {
         deploySuccess: {
             title: '部署完成',
             desc: '你的项目已上线！分享此链接给他人。',
+        },
+        import: {
+            title: '链接部署',
+            description: '输入共享的 Google AI Studio 链接或 ZIP 文件 URL 来导入项目。',
+            error: {
+                empty: '请输入 URL',
+                invalid: '无效的 URL',
+            },
+            supported: '支持的格式',
         },
         preview: {
             refreshTooltip: '刷新预览',
@@ -106,6 +117,7 @@ export const enUS = {
         close: 'Close',
         cancel: 'Cancel',
         confirm: 'Confirm',
+        import: 'Import',
         loading: 'Loading...',
         save: 'Save',
         download: 'Download',
@@ -128,6 +140,7 @@ export const enUS = {
         header: {
             deployTooltip: 'Create content to deploy',
             deployTitle: 'Deploy App',
+            importTooltip: 'Import Project',
         },
         input: {
             placeholder: 'Describe your app...',
@@ -151,6 +164,15 @@ export const enUS = {
         deploySuccess: {
             title: 'Deployment Ready',
             desc: 'Your project is live! Share this URL with others.',
+        },
+        import: {
+            title: 'Import Project',
+            description: 'Enter a shared Google AI Studio link or ZIP file URL to import a project.',
+            error: {
+                empty: 'Please enter a URL',
+                invalid: 'Invalid URL',
+            },
+            supported: 'Supported types',
         },
         preview: {
             refreshTooltip: 'Refresh Preview',

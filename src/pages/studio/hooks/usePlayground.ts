@@ -286,6 +286,75 @@ export function usePlayground() {
         navigate('/');
     };
 
+    const handleImport = async (url: string) => {
+        setLoadingStatus('importing');
+        
+        // Basic check for ZIP file
+        if (url.toLowerCase().endsWith('.zip')) {
+            try {
+                const response = await fetch(url);
+                if (!response.ok) throw new Error('Failed to fetch ZIP file');
+                const blob = await response.blob();
+                
+                const { default: JSZip } = await import(/* @vite-ignore */ 'https://esm.sh/jszip@3.10.1');
+                const zip = await JSZip.loadAsync(blob);
+                
+                const newFiles: Record<string, string> = {};
+                
+                // Recursively read files
+                const processZipEntries = async () => {
+                    const promises: Promise<void>[] = [];
+                    zip.forEach((relativePath, zipEntry) => {
+                        if (!zipEntry.dir) {
+                            promises.push(
+                                zipEntry.async("string").then(content => {
+                                    // Clean path: remove leading src/ if present or just keep relative
+                                    // Assuming flat structure or standard project structure
+                                    // Let's keep structure as is but ensure we handle 'src/' prefix if users zip the root or src
+                                    newFiles[relativePath] = content;
+                                })
+                            );
+                        }
+                    });
+                    await Promise.all(promises);
+                };
+                
+                await processZipEntries();
+                setFiles(newFiles);
+                setLoadingStatus('');
+                // Maybe set a chat content saying "Imported project from ZIP"
+                setChatContent('<div class="system-message">Successfully imported project from ZIP package.</div>');
+                
+            } catch (err: any) {
+                console.error('Import ZIP error:', err);
+                alert('Failed to import ZIP: ' + err.message);
+                setLoadingStatus('');
+            }
+            return;
+        }
+
+        // Fallback to backend for Google AI Studio or other links
+        try {
+            // Check if it looks like a Google AI Studio link
+            if (url.includes('aistudio.google.com') || url.includes('makersuite.google.com')) {
+                 const res: any = await api.importFromUrl(url);
+                 if (res && res.files) {
+                     setFiles(res.files);
+                     if (res.chatContent) setChatContent(res.chatContent);
+                     setLoadingStatus('');
+                 } else {
+                     throw new Error('No content returned from import');
+                 }
+            } else {
+                throw new Error('Unsupported link type');
+            }
+        } catch (err: any) {
+             console.error('Import error:', err);
+             alert('Import failed: ' + err.message);
+             setLoadingStatus('');
+        }
+    };
+
     return {
         deployUrl,
         setDeployUrl,
@@ -309,6 +378,7 @@ export function usePlayground() {
         handleConfirmDeploy,
         files,
         handleFileChange,
-        startNewProject
+        startNewProject,
+        handleImport // Export this
     };
 }
