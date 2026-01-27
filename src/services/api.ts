@@ -29,7 +29,10 @@ client.interceptors.response.use(
         return Promise.reject(new Error(message));
     }
 );
-
+const formatPromot = (prompt: string) => {
+    let promt = prompt+ '并满足条:不允许使用Gemini，不需要加入Gemini相关的内容包括GeminiService，我的应用不需要这个服务，同时默认是H5游戏';
+    return prompt.replace(/\n/g, ' ').trim();
+}
 export const api = {
     saveApp: (id: string, files: Record<string, string>) => {
         return client.post('/api/apps', { id, files });
@@ -44,13 +47,13 @@ export const api = {
     },
 
     generateCode: (prompt: string) => {
-        return client.post('/api/generate', { prompt });
+        return client.post('/api/generate', { prompt: formatPromot(prompt) });
     },
     getChatContent: (driveid: string) => {
         return client.get('/api/chatcontent', { params: { driveid } });
     },
     initChatContent: (prompt: string, model?: number) => {
-        return client.post('/api/initChatContent', { prompt, model });
+        return client.post('/api/initChatContent', { prompt: formatPromot(prompt), model });
     },
     sendChatMsg: (payload: { prompt: string, driveid: string, model?: number }) => {
         return client.post('/api/chatmsg', payload);
@@ -60,5 +63,14 @@ export const api = {
     },
     importFromUrl: (url: string) => {
         return client.post('/api/import', { url });
+    },
+    importFromFile: (file: File) => {
+        const formData = new FormData();
+        formData.append('file', file);
+        return client.post('/api/import/file', formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            }
+        });
     }
 };

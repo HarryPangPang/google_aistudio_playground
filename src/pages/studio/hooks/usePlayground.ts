@@ -4,22 +4,22 @@ import { api } from '../../../services/api';
 import { files as initialFiles } from '../../../fs/virtualFs';
 
 const MODEL_OPTIONS = [
-    {
-        label: 'Gemini 3 Flash Preview',
-        value: 1,   
-    },
+    // {
+    //     label: 'Gemini 3 Flash Preview',
+    //     value: 1,   
+    // },
     {
         label: 'Gemini 3 Pro Preview',
         value: 2,   
     },
-    {
-        label: 'Gemini 2.5 Pro',
-        value: 3,   
-    },
-    {
-        label: 'Gemini 2.5 Flash',
-        value: 4,   
-    },
+    // {
+    //     label: 'Gemini 2.5 Pro',
+    //     value: 3,   
+    // },
+    // {
+    //     label: 'Gemini 2.5 Flash',
+    //     value: 4,   
+    // },
 ];
 const DEFAULT_MODEL = MODEL_OPTIONS[0];
 
@@ -288,70 +288,31 @@ export function usePlayground() {
 
     const handleImport = async (url: string) => {
         setLoadingStatus('importing');
-        
-        // Basic check for ZIP file
-        if (url.toLowerCase().endsWith('.zip')) {
-            try {
-                const response = await fetch(url);
-                if (!response.ok) throw new Error('Failed to fetch ZIP file');
-                const blob = await response.blob();
-                
-                const { default: JSZip } = await import(/* @vite-ignore */ 'https://esm.sh/jszip@3.10.1');
-                const zip = await JSZip.loadAsync(blob);
-                
-                const newFiles: Record<string, string> = {};
-                
-                // Recursively read files
-                const processZipEntries = async () => {
-                    const promises: Promise<void>[] = [];
-                    zip.forEach((relativePath, zipEntry) => {
-                        if (!zipEntry.dir) {
-                            promises.push(
-                                zipEntry.async("string").then(content => {
-                                    // Clean path: remove leading src/ if present or just keep relative
-                                    // Assuming flat structure or standard project structure
-                                    // Let's keep structure as is but ensure we handle 'src/' prefix if users zip the root or src
-                                    newFiles[relativePath] = content;
-                                })
-                            );
-                        }
-                    });
-                    await Promise.all(promises);
-                };
-                
-                await processZipEntries();
-                setFiles(newFiles);
-                setLoadingStatus('');
-                // Maybe set a chat content saying "Imported project from ZIP"
-                setChatContent('<div class="system-message">Successfully imported project from ZIP package.</div>');
-                
-            } catch (err: any) {
-                console.error('Import ZIP error:', err);
-                alert('Failed to import ZIP: ' + err.message);
-                setLoadingStatus('');
-            }
-            return;
-        }
-
-        // Fallback to backend for Google AI Studio or other links
         try {
-            // Check if it looks like a Google AI Studio link
-            if (url.includes('aistudio.google.com') || url.includes('makersuite.google.com')) {
-                 const res: any = await api.importFromUrl(url);
-                 if (res && res.files) {
-                     setFiles(res.files);
-                     if (res.chatContent) setChatContent(res.chatContent);
-                     setLoadingStatus('');
-                 } else {
-                     throw new Error('No content returned from import');
-                 }
-            } else {
-                throw new Error('Unsupported link type');
-            }
+            const data: any = await api.importFromUrl(url);
+            const _url = `${window.location.origin}/${data.url}`;
+            setDeployUrl(_url);
+
+            setLoadingStatus('');
         } catch (err: any) {
-             console.error('Import error:', err);
-             alert('Import failed: ' + err.message);
-             setLoadingStatus('');
+            console.error('Import error:', err);
+            alert('Import failed: ' + err.message);
+            setLoadingStatus('');
+        }
+    };
+
+    const handleImportFile = async (file: File) => {
+        setLoadingStatus('importing');
+        try {
+            const data: any = await api.importFromFile(file);
+            const _url = `${window.location.origin}/${data.url}`;
+            setDeployUrl(_url);
+
+            setLoadingStatus('');
+        } catch (err: any) {
+            console.error('Import file error:', err);
+            alert('Import file failed: ' + err.message);
+            setLoadingStatus('');
         }
     };
 
@@ -379,6 +340,7 @@ export function usePlayground() {
         files,
         handleFileChange,
         startNewProject,
-        handleImport // Export this
+        handleImport,
+        handleImportFile
     };
 }

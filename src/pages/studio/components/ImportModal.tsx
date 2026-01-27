@@ -89,7 +89,7 @@ export const ImportModal: React.FC<ImportModalProps> = ({ visible, onClose, onIm
                                     setUrl(e.target.value);
                                     setError('');
                                 }}
-                                placeholder="https://aistudio.google.com/..."
+                                placeholder="https://ai.studio/apps/drive/12....."
                                 className={error ? 'error' : ''}
                                 onKeyPress={e => e.key === 'Enter' && handleSubmit()}
                             />
@@ -105,7 +105,7 @@ export const ImportModal: React.FC<ImportModalProps> = ({ visible, onClose, onIm
                         <div className="example-links">
                             <button
                                 className="example-link"
-                                onClick={() => handleExampleClick('https://aistudio.google.com/app/prompts/new_chat')}
+                                onClick={() => handleExampleClick('https://ai.studio/apps/drive/examplexxxx')}
                             >
                                 Google AI Studio
                             </button>
