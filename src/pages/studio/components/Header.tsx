@@ -32,14 +32,15 @@ export const Header: React.FC<HeaderProps> = ({ isSaving, isDeploying, chatConte
             </div>
 
             <div className="header-actions">
-                {/* Import Button */}
-                 <button
+                {/* Import Button - Featured as a major feature */}
+                <button
                     onClick={onImport}
-                    className="action-btn secondary"
+                    className="action-btn featured-import"
                     title={$l('studio.header.importTooltip')}
                 >
-                    <span className="icon">📥</span>
+                    <span className="icon">🔗</span>
                     {$l('common.import')}
+                    <span className="new-badge">{$l('common.new')}</span>
                 </button>
 
                 <button

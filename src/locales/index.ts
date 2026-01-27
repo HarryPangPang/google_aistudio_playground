@@ -14,6 +14,7 @@ export const zhCN = {
         refresh: '刷新',
         openSite: '打开网站',
         notNow: '暂不',
+        new: 'NEW',
     },
     menu: {
         create: '创建项目',
@@ -55,12 +56,19 @@ export const zhCN = {
         },
         import: {
             title: '链接部署',
-            description: '输入共享的 Google AI Studio 链接或 ZIP 文件 URL 来导入项目。',
+            description: '一键导入分享的项目链接，立即开始构建！支持 Google AI Studio 和 ZIP 文件。',
             error: {
                 empty: '请输入 URL',
                 invalid: '无效的 URL',
             },
             supported: '支持的格式',
+            paste: '快速粘贴',
+            examples: '示例链接',
+            feature: {
+                instant: '即时导入',
+                fullcode: '完整代码',
+                anywhere: '随处部署',
+            },
         },
         preview: {
             refreshTooltip: '刷新预览',
@@ -117,7 +125,7 @@ export const enUS = {
         close: 'Close',
         cancel: 'Cancel',
         confirm: 'Confirm',
-        import: 'Import',
+        import: 'Link Deploy',
         loading: 'Loading...',
         save: 'Save',
         download: 'Download',
@@ -126,6 +134,7 @@ export const enUS = {
         refresh: 'Refresh',
         openSite: 'Open Site',
         notNow: 'Not Now',
+        new: 'NEW',
     },
     menu: {
         create: 'Create',
@@ -166,13 +175,20 @@ export const enUS = {
             desc: 'Your project is live! Share this URL with others.',
         },
         import: {
-            title: 'Import Project',
-            description: 'Enter a shared Google AI Studio link or ZIP file URL to import a project.',
+            title: 'Link Deploy',
+            description: 'Import shared project links instantly and start building! Supports Google AI Studio and ZIP files.',
             error: {
                 empty: 'Please enter a URL',
                 invalid: 'Invalid URL',
             },
-            supported: 'Supported types',
+            supported: 'Supported',
+            paste: 'Quick Paste',
+            examples: 'Examples',
+            feature: {
+                instant: 'Instant Import',
+                fullcode: 'Full Source',
+                anywhere: 'Deploy Anywhere',
+            },
         },
         preview: {
             refreshTooltip: 'Refresh Preview',

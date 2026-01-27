@@ -35,35 +35,99 @@ export const ImportModal: React.FC<ImportModalProps> = ({ visible, onClose, onIm
         onClose();
     };
 
+    const handlePaste = async () => {
+        try {
+            const text = await navigator.clipboard.readText();
+            setUrl(text);
+            setError('');
+        } catch (err) {
+            console.error('Failed to read clipboard:', err);
+        }
+    };
+
+    const handleExampleClick = (exampleUrl: string) => {
+        setUrl(exampleUrl);
+        setError('');
+    };
+
     return (
         <div className="import-modal-overlay" onClick={onClose}>
             <div className="import-modal-content" onClick={e => e.stopPropagation()}>
                 <div className="modal-header">
-                    <h3>{$l('studio.import.title')}</h3>
+                    <div className="header-title">
+                        <span className="header-icon">🔗</span>
+                        <h3>{$l('studio.import.title')}</h3>
+                        <span className="new-feature-badge">{$l('common.new')}</span>
+                    </div>
                     <button className="close-btn" onClick={onClose}>×</button>
                 </div>
-                
+
                 <div className="modal-body">
                     <p className="description">{$l('studio.import.description')}</p>
-                    
+
+                    <div className="features-grid">
+                        <div className="feature-item">
+                            <span className="feature-icon">⚡</span>
+                            <span className="feature-text">{$l('studio.import.feature.instant')}</span>
+                        </div>
+                        <div className="feature-item">
+                            <span className="feature-icon">🎨</span>
+                            <span className="feature-text">{$l('studio.import.feature.fullcode')}</span>
+                        </div>
+                        <div className="feature-item">
+                            <span className="feature-icon">🌐</span>
+                            <span className="feature-text">{$l('studio.import.feature.anywhere')}</span>
+                        </div>
+                    </div>
+
                     <div className="input-group">
-                        <input
-                            type="text"
-                            value={url}
-                            onChange={e => {
-                                setUrl(e.target.value);
-                                setError('');
-                            }}
-                            placeholder="https://aistudio.google.com/..."
-                            className={error ? 'error' : ''}
-                        />
+                        <div className="input-wrapper">
+                            <input
+                                type="text"
+                                value={url}
+                                onChange={e => {
+                                    setUrl(e.target.value);
+                                    setError('');
+                                }}
+                                placeholder="https://aistudio.google.com/..."
+                                className={error ? 'error' : ''}
+                                onKeyPress={e => e.key === 'Enter' && handleSubmit()}
+                            />
+                            <button className="paste-btn" onClick={handlePaste} title={$l('studio.import.paste')}>
+                                📋
+                            </button>
+                        </div>
                         {error && <span className="error-msg">{error}</span>}
+                    </div>
+
+                    <div className="examples-section">
+                        <span className="examples-label">{$l('studio.import.examples')}:</span>
+                        <div className="example-links">
+                            <button
+                                className="example-link"
+                                onClick={() => handleExampleClick('https://aistudio.google.com/app/prompts/new_chat')}
+                            >
+                                Google AI Studio
+                            </button>
+                            <button
+                                className="example-link"
+                                onClick={() => handleExampleClick('https://example.com/project.zip')}
+                            >
+                                ZIP File
+                            </button>
+                        </div>
                     </div>
 
                     <div className="supported-types">
                         <span>{$l('studio.import.supported')}:</span>
-                        <span className="type-tag">Google AI Studio URL</span>
-                        <span className="type-tag">ZIP</span>
+                        <span className="type-tag">
+                            <span className="tag-icon">🔗</span>
+                            Google AI Studio
+                        </span>
+                        <span className="type-tag">
+                            <span className="tag-icon">📦</span>
+                            ZIP Files
+                        </span>
                     </div>
                 </div>
 
@@ -72,6 +136,7 @@ export const ImportModal: React.FC<ImportModalProps> = ({ visible, onClose, onIm
                         {$l('common.cancel')}
                     </button>
                     <button className="confirm-btn" onClick={handleSubmit}>
+                        <span className="btn-icon">✨</span>
                         {$l('common.import')}
                     </button>
                 </div>
