@@ -23,6 +23,8 @@ const Playground: React.FC = () => {
         chatContent,
         prompt,
         setPrompt,
+        platform,
+        setPlatform,
         model,
         setModel,
         modelOptions,
@@ -61,6 +63,8 @@ const Playground: React.FC = () => {
                 <InputArea
                     prompt={prompt}
                     setPrompt={setPrompt}
+                    platform={platform}
+                    setPlatform={setPlatform}
                     model={model}
                     setModel={setModel}
                     modelOptions={modelOptions}

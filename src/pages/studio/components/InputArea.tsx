@@ -2,10 +2,13 @@ import React from 'react';
 import { useI18n } from '../../../context/I18nContext';
 import './css/InputArea.scss';
 import { DEFAULT_MODEL, MODEL_OPTIONS } from '../hooks/usePlayground';
+import { getAllPlatforms, getPlatformStatusText, type Platform } from '../../../config/platforms';
 
 interface InputAreaProps {
     prompt: string;
     setPrompt: (value: string) => void;
+    platform: Platform;
+    setPlatform: (value: Platform) => void;
     model: { label: string, value: number };
     setModel: (value: { label: string, value: number }) => void;
     modelOptions: { label: string, value: number }[];
@@ -17,6 +20,8 @@ interface InputAreaProps {
 export const InputArea: React.FC<InputAreaProps> = ({
     prompt,
     setPrompt,
+    platform,
+    setPlatform,
     model,
     setModel,
     modelOptions,
@@ -26,13 +31,59 @@ export const InputArea: React.FC<InputAreaProps> = ({
 }) => {
     const { $l } = useI18n();
     const isDisabled = isGenerating || !prompt.trim();
+    const allPlatforms = getAllPlatforms();
+
+    const handlePlatformChange = (newPlatform: Platform) => {
+        if (newPlatform.status !== 'active') {
+            alert(`${newPlatform.displayName} is ${getPlatformStatusText(newPlatform.status).toLowerCase()}. Stay tuned!`);
+            return;
+        }
+        setPlatform(newPlatform);
+        // Reset model to the first model of the new platform
+        if (newPlatform.models.length > 0) {
+            setModel(newPlatform.models[0] as any);
+        }
+    };
 
     return (
         <div className="ai-studio-input-area">
             <div className="input-card">
                 <div className="input-toolbar">
-                    <div className={`model-selector ${isProjectCreated ? 'locked' : ''}`}>
+                    {/* Platform Selector */}
+                    <div className={`platform-selector ${isProjectCreated ? 'locked' : ''}`}>
+                        <span className="platform-icon">{platform.icon}</span>
+                        {isProjectCreated ? (
+                            <span className="platform-name">{platform.displayName}</span>
+                        ) : (
+                            <select
+                                className="platform-select"
+                                value={platform.id}
+                                onChange={(e) => {
+                                    const selectedPlatform = allPlatforms.find(p => p.id === e.target.value);
+                                    if (selectedPlatform) {
+                                        handlePlatformChange(selectedPlatform);
+                                    }
+                                }}
+                            >
+                                {allPlatforms.map((p) => (
+                                    <option key={p.id} value={p.id}>
+                                        {p.displayName}
+                                        {p.status !== 'active' ? ` (${getPlatformStatusText(p.status)})` : ''}
+                                    </option>
+                                ))}
+                            </select>
+                        )}
+                        {!isProjectCreated && (
+                            <div className="select-arrow">
+                                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    <polyline points="6 9 12 15 18 9"></polyline>
+                                </svg>
+                            </div>
+                        )}
+                    </div>
 
+                    {/* Model Selector */}
+                    <div className={`model-selector ${isProjectCreated ? 'locked' : ''}`}>
                         {
                             model?.label ?
                                 <div className="model-icon">
@@ -51,13 +102,13 @@ export const InputArea: React.FC<InputAreaProps> = ({
                                 value={model.value}
                                 onChange={(e) => {
                                     const selectedValue = Number(e.target.value);
-                                    const selectedModel = modelOptions.find(opt => opt.value === selectedValue);
+                                    const selectedModel = platform.models.find(opt => opt.value === selectedValue);
                                     if (selectedModel) {
-                                        setModel(selectedModel);
+                                        setModel(selectedModel as any);
                                     }
                                 }}
                             >
-                                {modelOptions.map((option) => (
+                                {platform.models.map((option) => (
                                     <option key={option.value} value={option.value}>
                                         {option.label}
                                     </option>

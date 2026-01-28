@@ -2,23 +2,24 @@ import { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom'; // Import useLocation and useNavigate
 import { api } from '../../../services/api';
 import { files as initialFiles } from '../../../fs/virtualFs';
+import { DEFAULT_PLATFORM, type Platform, type Model } from '../../../config/platforms';
 
 export const MODEL_OPTIONS = [
     {
         label: 'Gemini 3 Flash Preview',
-        value: 1,   
+        value: 1,
     },
     {
         label: 'Gemini 3 Pro Preview',
-        value: 2,   
+        value: 2,
     },
     {
         label: 'Gemini 2.5 Pro',
-        value: 3,   
+        value: 3,
     },
     {
         label: 'Gemini 2.5 Flash',
-        value: 4,   
+        value: 4,
     },
 ];
 export const DEFAULT_MODEL = MODEL_OPTIONS[0];
@@ -32,6 +33,7 @@ export function usePlayground() {
     const [isDeploying, setIsDeploying] = useState(false);
     const [chatContent, setChatContent] = useState('');
     const [prompt, setPrompt] = useState('');
+    const [platform, setPlatform] = useState<Platform>(DEFAULT_PLATFORM);
     const [model, setModel] = useState(DEFAULT_MODEL);
     const [isGenerating, setIsGenerating] = useState(false);
     const [loadingStatus, setLoadingStatus] = useState(''); 
@@ -52,10 +54,33 @@ export function usePlayground() {
     const initHistory = async (driveid: string) => {
         try {
             const history = JSON.parse(localStorage.getItem('chat_history') || '[]');
-            const item = history.find((i: any) => i.driveid === driveid);
+            const item = history.find((i: any) => i.driveid === driveid || i.id === driveid);
             if (item && item.chatContent) {
                 setChatContent(item.chatContent);
-                setModel(item.model || DEFAULT_MODEL);
+
+                // 兼容旧数据格式：model 可能是 number 或 {label, value}
+                if (item.model) {
+                    if (typeof item.model === 'object' && item.model.label && item.model.value !== undefined) {
+                        setModel(item.model);
+                    } else if (typeof item.model === 'number') {
+                        const foundModel = MODEL_OPTIONS.find(m => m.value === item.model);
+                        setModel(foundModel || DEFAULT_MODEL);
+                    } else {
+                        setModel(DEFAULT_MODEL);
+                    }
+                } else {
+                    setModel(DEFAULT_MODEL);
+                }
+
+                // 恢复平台信息（如果有）
+                if (item.platformId) {
+                    const { getPlatformById } = await import('../../../config/platforms');
+                    const savedPlatform = getPlatformById(item.platformId);
+                    if (savedPlatform) {
+                        setPlatform(savedPlatform);
+                    }
+                }
+
                 return;
             }
         } catch (e) {
@@ -87,6 +112,7 @@ export function usePlayground() {
         setChatContent('');
         setFiles(initialFiles);
         setPrompt('');
+        setPlatform(DEFAULT_PLATFORM);
         setModel(DEFAULT_MODEL);
 
         if (targetId) {
@@ -128,6 +154,25 @@ export function usePlayground() {
             const data: any = await api.deploywithcode({ id: appId });
             const url = `${window.location.origin}/${data.url}`;
             setDeployUrl(url);
+
+            // Update project with deploy URL
+            try {
+                const history = JSON.parse(localStorage.getItem('chat_history') || '[]');
+                const projectIndex = history.findIndex((item: any) =>
+                    item.driveid === appId || item.id === appId
+                );
+                if (projectIndex !== -1) {
+                    history[projectIndex] = {
+                        ...history[projectIndex],
+                        deployUrl: url,
+                        status: 'deployed',
+                        updatedAt: Date.now()
+                    };
+                    localStorage.setItem('chat_history', JSON.stringify(history));
+                }
+            } catch (e) {
+                console.error('Failed to update deploy URL:', e);
+            }
         } catch (err: any) {
             console.error('Deploy error:', err);
             alert('Deploy failed: ' + err.message);
@@ -143,7 +188,9 @@ export function usePlayground() {
             let existingIndex = -1;
             
             if (id) {
-                existingIndex = history.findIndex((item: any) => item.driveid === id);
+                existingIndex = history.findIndex((item: any) =>
+                    item.driveid === id || item.id === id
+                );
             }
 
             if (existingIndex !== -1) {
@@ -154,22 +201,32 @@ export function usePlayground() {
                 const updatedItem = {
                     ...item,
                     prompt: prompts,
+                    title: prompts[0], // 使用第一条 prompt 作为标题
                     chatContent: chatContent,
-                    model: selectedModel,
+                    model: {
+                        label: model.label,
+                        value: selectedModel
+                    },
+                    platformId: platform.id,
                     updatedAt: Date.now()
                 };
-                
+
                 history.splice(existingIndex, 1);
                 history.unshift(updatedItem);
             } else {
                 const newRecord = {
+                    id: id || `chat-${Date.now()}`,
                     driveid: id || '',
-                    id: id || '',
-                    filename: '',
-                    filepath: '',
+                    type: 'ai-chat',
+                    platformId: platform.id,
+                    title: currentPrompt,
                     prompt: [currentPrompt],
                     chatContent: chatContent,
-                    model: selectedModel,
+                    model: {
+                        label: model.label,
+                        value: selectedModel
+                    },
+                    status: 'draft',
                     createdAt: Date.now()
                 };
                 history.unshift(newRecord);
@@ -280,8 +337,9 @@ export function usePlayground() {
         setChatContent('');
         setFiles(initialFiles);
         setPrompt('');
+        setPlatform(DEFAULT_PLATFORM);
         setModel(DEFAULT_MODEL);
-        
+
         // Update URL, which will trigger useEffect -> initApp -> double ensure reset
         navigate('/');
     };
@@ -290,13 +348,40 @@ export function usePlayground() {
         setLoadingStatus('importing');
         try {
             let data: any;
+            let deployType: 'url' | 'zip' = 'url';
+            let sourceUrl: string | undefined = url;
+
             if (file) {
                 data = await api.importFromFile(file);
+                deployType = 'zip';
+                sourceUrl = undefined;
             } else {
                 data = await api.importFromUrl(url);
+                deployType = 'url';
             }
-            const _url = `${window.location.origin}/${data.url}`;
-            setDeployUrl(_url);
+
+            const deployUrl = `${window.location.origin}/${data.url}`;
+            setDeployUrl(deployUrl);
+
+            // Save to history
+            try {
+                const history = JSON.parse(localStorage.getItem('chat_history') || '[]');
+                const newProject = {
+                    id: `deploy-${Date.now()}`,
+                    type: deployType === 'zip' ? 'zip-deploy' : 'url-deploy',
+                    platformId: platform.id,
+                    title: file ? file.name : url,
+                    deployUrl: deployUrl,
+                    deployType: deployType,
+                    sourceUrl: sourceUrl,
+                    status: 'deployed',
+                    createdAt: Date.now(),
+                };
+                history.unshift(newProject);
+                localStorage.setItem('chat_history', JSON.stringify(history));
+            } catch (e) {
+                console.error('Failed to save deploy history:', e);
+            }
 
             setLoadingStatus('');
         } catch (err: any) {
@@ -315,6 +400,8 @@ export function usePlayground() {
         chatContent,
         prompt,
         setPrompt,
+        platform,
+        setPlatform,
         model,
         setModel,
         modelOptions: MODEL_OPTIONS,
