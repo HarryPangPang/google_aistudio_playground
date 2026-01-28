@@ -286,33 +286,23 @@ export function usePlayground() {
         navigate('/');
     };
 
-    const handleImport = async (url: string) => {
+    const handleImport = async (url: string, file?: File): Promise<void> => {
         setLoadingStatus('importing');
         try {
-            const data: any = await api.importFromUrl(url);
+            let data: any;
+            if (file) {
+                data = await api.importFromFile(file);
+            } else {
+                data = await api.importFromUrl(url);
+            }
             const _url = `${window.location.origin}/${data.url}`;
             setDeployUrl(_url);
 
             setLoadingStatus('');
         } catch (err: any) {
             console.error('Import error:', err);
-            alert('Import failed: ' + err.message);
             setLoadingStatus('');
-        }
-    };
-
-    const handleImportFile = async (file: File) => {
-        setLoadingStatus('importing');
-        try {
-            const data: any = await api.importFromFile(file);
-            const _url = `${window.location.origin}/${data.url}`;
-            setDeployUrl(_url);
-
-            setLoadingStatus('');
-        } catch (err: any) {
-            console.error('Import file error:', err);
-            alert('Import file failed: ' + err.message);
-            setLoadingStatus('');
+            throw err; // 抛出错误让 ImportModal 捕获
         }
     };
 
@@ -340,7 +330,6 @@ export function usePlayground() {
         files,
         handleFileChange,
         startNewProject,
-        handleImport,
-        handleImportFile
+        handleImport
     };
 }

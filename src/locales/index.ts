@@ -5,7 +5,7 @@ export const zhCN = {
         close: '关闭',
         cancel: '取消',
         confirm: '确认',
-        import: '链接部署',
+        import: '自定义部署',
         loading: '加载中...',
         save: '保存',
         download: '下载',
@@ -29,7 +29,7 @@ export const zhCN = {
         header: {
             deployTooltip: '生成内容后即可部署',
             deployTitle: '部署应用',
-            importTooltip: '链接部署',
+            importTooltip: '自定义部署',
         },
         input: {
             placeholder: '描述你想要的应用...',
@@ -55,7 +55,7 @@ export const zhCN = {
             desc: '你的项目已上线！分享此链接给他人。',
         },
         import: {
-            title: '链接部署',
+            title: '自定义部署',
             description: '一键导入分享的项目链接，立即开始构建！支持 Google AI Studio 和 ZIP 文件。',
             error: {
                 empty: '请输入 URL',
@@ -131,7 +131,7 @@ export const enUS = {
         close: 'Close',
         cancel: 'Cancel',
         confirm: 'Confirm',
-        import: 'Link Deploy',
+        import: 'Custom Deploy',
         loading: 'Loading...',
         save: 'Save',
         download: 'Download',
@@ -155,7 +155,7 @@ export const enUS = {
         header: {
             deployTooltip: 'Create content to deploy',
             deployTitle: 'Deploy App',
-            importTooltip: 'Import Project',
+            importTooltip: 'Custom Deploy',
         },
         input: {
             placeholder: 'Describe your app...',
@@ -181,7 +181,7 @@ export const enUS = {
             desc: 'Your project is live! Share this URL with others.',
         },
         import: {
-            title: 'Link Deploy',
+            title: 'Custom Deploy',
             description: 'Import shared project links instantly and start building! Supports Google AI Studio and ZIP files.',
             error: {
                 empty: 'Please enter a URL',

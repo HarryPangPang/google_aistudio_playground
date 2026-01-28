@@ -70,8 +70,8 @@ export const api = {
     },
     importFromFile: (file: File) => {
         const formData = new FormData();
-        formData.append('file', file);
-        return client.post('/api/import/file', formData, {
+        formData.append('zipFile', file);
+        return client.post('/api/uploadzip', formData, {
             headers: {
                 'Content-Type': 'multipart/form-data'
             }
