@@ -190,7 +190,7 @@ export function usePlayground() {
         setDeployUrl('');
         try {
             if (!appId) {
-                const res: any = await api.initChatContent(currentPrompt, model.value);
+                const res: any = await api.initChatContent(currentPrompt, model);
                 const chatDomContent = res?.data?.chatDomContent || res?.data?.chatDomContent || '';
                 const driveid = res?.data?.driveid || res?.driveid || '';
                 setChatContent(chatDomContent);
@@ -202,7 +202,7 @@ export function usePlayground() {
                 const res: any = await api.sendChatMsg({
                     prompt: currentPrompt,
                     driveid: appId,
-                    model: model.value
+                    model: model
                 });
                 const chatDomContent = res?.chatDomContent || '';
                 setChatContent(chatDomContent);

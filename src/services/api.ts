@@ -56,11 +56,20 @@ export const api = {
     getChatContent: (driveid: string) => {
         return client.get('/api/chatcontent', { params: { driveid } });
     },
-    initChatContent: (prompt: string, model?: number) => {
-        return client.post('/api/initChatContent', { prompt: formatPromot(prompt), model });
+    initChatContent: (prompt: string, model?: { label: string; value: number }) => {
+        return client.post('/api/initChatContent', {
+            prompt: formatPromot(prompt),
+            modelLabel: model?.label,
+            modelValue: model?.value
+        });
     },
-    sendChatMsg: (payload: { prompt: string, driveid: string, model?: number }) => {
-        return client.post('/api/chatmsg', payload);
+    sendChatMsg: (payload: { prompt: string, driveid: string, model?: { label: string; value: number } }) => {
+        return client.post('/api/chatmsg', {
+            ...payload,
+            modelLabel: payload.model?.label,
+            modelValue: payload.model?.value,
+            model: undefined  // Remove the original model field
+        });
     },
     deploywithcode: (data: any) => {
         return client.post('/api/deploywithcode', { data });
