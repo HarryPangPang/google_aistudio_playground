@@ -43,10 +43,11 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
     const menuItems = [
         { id: 'create', label: t.menu.create, icon: IconPlus, path: '/' },
         { id: 'projects', label: t.menu.projects, icon: IconFolder, path: '/projects' },
-        { id: 'earnings', label: t.menu.earnings, icon: IconChart, path: '/earnings' },
-        { id: 'robot-market', label: t.menu.robotMarket, icon: IconRobot, path: '/robot-market' },
         { id: 'game-market', label: t.menu.gameMarket, icon: IconGame, path: '/game-market' },
         { id: 'ranking', label: t.menu.ranking, icon: IconTrophy, path: '/ranking' },
+        { id: 'earnings', label: t.menu.earnings, icon: IconChart, path: '/earnings' },
+        { id: 'robot-market', label: t.menu.robotMarket, icon: IconRobot, path: '/robot-market' },
+
     ];
 
     const isPathActive = (path: string) => {

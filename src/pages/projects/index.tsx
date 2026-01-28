@@ -30,13 +30,8 @@ export const Projects: React.FC = () => {
     };
 
     const handleOpenProject = (id: string) => {
-        // 使用 window.location.href 会导致页面刷新，这里可以改用 navigate
-        // 但为了兼容旧逻辑，我们保留它，或者改为 SPA 跳转
-        // window.location.href = `/?driveid=${id}`;
-        
-        // 更好的方式是使用 router navigate，但在组件内部没有 router context
-        // 这里只是简单的 href 跳转，Studio 会读取 URL 参数
-        window.location.href = `/?driveid=${id}`;
+        // 使用 hash 路由格式，参数放在 hash 后面
+        window.location.href = `/#/?driveid=${id}`;
     };
 
     return (

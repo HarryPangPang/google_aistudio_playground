@@ -12,7 +12,11 @@ const client = axios.create({
 // Add driveid to every request if present in URL
 client.interceptors.request.use((config) => {
     if (typeof window !== 'undefined') {
-        const params = new URLSearchParams(window.location.search);
+        // 在 hash 路由模式下，参数在 hash 后面，需要从 hash 中解析
+        const hash = window.location.hash;
+        const searchIndex = hash.indexOf('?');
+        const search = searchIndex !== -1 ? hash.substring(searchIndex) : '';
+        const params = new URLSearchParams(search);
         const driveId = params.get('driveid');
         if (driveId) {
             config.params = config.params || {};
