@@ -73,15 +73,6 @@ export const Projects: React.FC = () => {
                             : DEFAULT_PLATFORM;
                         const projectId = project.id || project.driveid || `project-${index}`;
 
-                        // Debug log
-                        console.log('Project:', {
-                            id: projectId,
-                            driveid: project.driveid,
-                            type: project.type,
-                            canContinue: canContinueChat(project),
-                            canPreview: canPreview(project)
-                        });
-
                         return (
                             <div
                                 key={projectId}

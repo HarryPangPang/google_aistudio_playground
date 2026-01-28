@@ -5,3 +5,8 @@ dist
 .vscode
 .DS_Store
 .demo
+
+# Environment variables - IMPORTANT: Never commit these!
+.env
+.env.local
+.env.production
