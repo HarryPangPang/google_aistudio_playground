@@ -8,3 +8,22 @@
         padding-bottom: 240px; // More space for mobile input area
     }
 }
+
+.chat-content-container {
+    width: 100%;
+    max-width: 800px;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.empty-state-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 60vh;
+    color: #888;
+    gap: 16px;
+}

@@ -3,25 +3,25 @@ import { useLocation, useNavigate } from 'react-router-dom'; // Import useLocati
 import { api } from '../../../services/api';
 import { files as initialFiles } from '../../../fs/virtualFs';
 
-const MODEL_OPTIONS = [
-    // {
-    //     label: 'Gemini 3 Flash Preview',
-    //     value: 1,   
-    // },
+export const MODEL_OPTIONS = [
+    {
+        label: 'Gemini 3 Flash Preview',
+        value: 1,   
+    },
     {
         label: 'Gemini 3 Pro Preview',
         value: 2,   
     },
-    // {
-    //     label: 'Gemini 2.5 Pro',
-    //     value: 3,   
-    // },
-    // {
-    //     label: 'Gemini 2.5 Flash',
-    //     value: 4,   
-    // },
+    {
+        label: 'Gemini 2.5 Pro',
+        value: 3,   
+    },
+    {
+        label: 'Gemini 2.5 Flash',
+        value: 4,   
+    },
 ];
-const DEFAULT_MODEL = MODEL_OPTIONS[0];
+export const DEFAULT_MODEL = MODEL_OPTIONS[0];
 
 export function usePlayground() {
     const location = useLocation(); // Hook for location
