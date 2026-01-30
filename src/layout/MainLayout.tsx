@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { IconPlus, IconRobot, IconGame, IconTrophy, IconFolder, IconChart } from '../components/Icons';
 import { useLayout } from '../context/LayoutContext';
 import { useI18n } from '../context/I18nContext';
+import { useAuth } from '../context/AuthContext';
 import monsterImg from '../assets/monster.png';
 import './MainLayout.scss';
 
@@ -15,15 +16,21 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
     const location = useLocation();
     const { sidebarCollapsed } = useLayout();
     const { t, language, setLanguage } = useI18n();
-    
-    const [isLangMenuOpen, setIsLangMenuOpen] = useState(false);
-    const langMenuRef = useRef<HTMLDivElement>(null);
+    const { user, logout } = useAuth();
 
-    // Close menu when clicking outside
+    const [isLangMenuOpen, setIsLangMenuOpen] = useState(false);
+    const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+    const langMenuRef = useRef<HTMLDivElement>(null);
+    const userMenuRef = useRef<HTMLDivElement>(null);
+
+    // Close menus when clicking outside
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
             if (langMenuRef.current && !langMenuRef.current.contains(event.target as Node)) {
                 setIsLangMenuOpen(false);
+            }
+            if (userMenuRef.current && !userMenuRef.current.contains(event.target as Node)) {
+                setIsUserMenuOpen(false);
             }
         };
 
@@ -32,6 +39,11 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
             document.removeEventListener('mousedown', handleClickOutside);
         };
     }, []);
+
+    const handleLogout = () => {
+        logout();
+        navigate('/login');
+    };
 
     const languages = [
         { code: 'zh-CN', label: '简体中文', flag: '🇨🇳' },
@@ -107,8 +119,43 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
 
                 {/* User / Settings (Bottom) */}
                 <div className="user-section">
+                    {/* User Menu */}
+                    <div className="user-menu-wrapper" ref={userMenuRef}>
+                        <button
+                            className={`user-btn ${isUserMenuOpen ? 'open' : ''}`}
+                            onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+                            title={sidebarCollapsed ? user?.email : ''}
+                        >
+                            <span className="user-avatar">{user?.email?.[0].toUpperCase() || 'U'}</span>
+                            <div className={`user-info ${sidebarCollapsed ? 'hidden' : ''}`}>
+                                <span className="user-name">{user?.username || user?.email?.split('@')[0]}</span>
+                                <span className="arrow">▼</span>
+                            </div>
+                        </button>
+
+                        {isUserMenuOpen && (
+                            <div className="user-menu">
+                                <div className="user-menu-header">
+                                    <div className="user-avatar-large">{user?.email?.[0].toUpperCase()}</div>
+                                    <div className="user-details">
+                                        <div className="name">{user?.username || '用户'}</div>
+                                        <div className="email">{user?.email}</div>
+                                    </div>
+                                </div>
+                                <div className="user-menu-divider"></div>
+                                <button
+                                    className="menu-item logout-btn"
+                                    onClick={handleLogout}
+                                >
+                                    <span>退出登录</span>
+                                </button>
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Language Switcher */}
                     <div className="lang-switch-wrapper" ref={langMenuRef}>
-                        <button 
+                        <button
                             className={`lang-btn ${isLangMenuOpen ? 'open' : ''}`}
                             onClick={() => setIsLangMenuOpen(!isLangMenuOpen)}
                             title={sidebarCollapsed ? currentLang.label : ''}
