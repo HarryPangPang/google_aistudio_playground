@@ -9,7 +9,7 @@ const client = axios.create({
     }
 });
 
-// Add driveid to every request if present in URL
+// Add driveid and auth token to every request
 client.interceptors.request.use((config) => {
     if (typeof window !== 'undefined') {
         // 在 hash 路由模式下，参数在 hash 后面，需要从 hash 中解析
@@ -21,6 +21,12 @@ client.interceptors.request.use((config) => {
         if (driveId) {
             config.params = config.params || {};
             config.params.driveid = driveId;
+        }
+
+        // 从 localStorage 获取 token 并添加到请求头
+        const token = localStorage.getItem('auth_token');
+        if (token) {
+            config.headers.Authorization = `Bearer ${token}`;
         }
     }
     return config;
