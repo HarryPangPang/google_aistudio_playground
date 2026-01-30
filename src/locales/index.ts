@@ -81,6 +81,11 @@ export const zhCN = {
         updated: '更新于',
         deleteConfirm: '确定要删除这个项目吗？',
         untitled: '未命名项目',
+        share: '分享',
+        shareTitle: '分享项目',
+        shareDesc: '复制此链接分享给他人',
+        copyLink: '复制链接',
+        copied: '已复制',
     },
     earnings: {
         title: '创作者收益',
@@ -207,6 +212,11 @@ export const enUS = {
         updated: 'Updated',
         deleteConfirm: 'Are you sure you want to delete this project?',
         untitled: 'Untitled Project',
+        share: 'Share',
+        shareTitle: 'Share Project',
+        shareDesc: 'Copy this link to share with others',
+        copyLink: 'Copy Link',
+        copied: 'Copied',
     },
     earnings: {
         title: 'Creator Earnings',

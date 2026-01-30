@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { IconTrash, IconFolder } from '../../components/Icons';
+import { IconTrash, IconFolder, IconShare } from '../../components/Icons';
 import { useI18n } from '../../context/I18nContext';
+import { useAuth } from '../../context/AuthContext';
 import { DEFAULT_PLATFORM, getPlatformById } from '../../config/platforms';
 import { canContinueChat, canPreview, getProjectTitle, type Project } from '../../types/project';
 import { loadAndMigrateProjects } from '../../utils/projectMigration';
@@ -9,6 +10,10 @@ import './Projects.scss';
 export const Projects: React.FC = () => {
     const [projects, setProjects] = useState<Project[]>([]);
     const { t } = useI18n();
+    const { user } = useAuth();
+    const [shareModalOpen, setShareModalOpen] = useState(false);
+    const [shareUrl, setShareUrl] = useState('');
+    const [copied, setCopied] = useState(false);
 
     useEffect(() => {
         loadProjects();
@@ -56,6 +61,30 @@ export const Projects: React.FC = () => {
         }
     };
 
+    const handleShare = (project: Project, e: React.MouseEvent) => {
+        e.stopPropagation();
+        const projectId = project.id || project.driveid || '';
+        const userId = user?.id || '';
+        // 生成分享链接，包含项目ID和用户ID
+        const baseUrl = window.location.origin;
+        const url = `${baseUrl}/#/?projectId=${projectId}&userId=${userId}`;
+        setShareUrl(url);
+        setShareModalOpen(true);
+        setCopied(false);
+    };
+
+    const handleCopyLink = () => {
+        navigator.clipboard.writeText(shareUrl).then(() => {
+            setCopied(true);
+            setTimeout(() => setCopied(false), 2000);
+        });
+    };
+
+    const handleCloseModal = () => {
+        setShareModalOpen(false);
+        setCopied(false);
+    };
+
     return (
         <div className="projects-container">
             <h1 className="projects-title">{t.projects.title}</h1>
@@ -82,12 +111,21 @@ export const Projects: React.FC = () => {
                                     <div className="project-icon">
                                         <IconFolder />
                                     </div>
-                                    <button
-                                        onClick={(e) => handleDelete(projectId, e)}
-                                        className="delete-btn"
-                                    >
-                                        <IconTrash className="delete-icon" />
-                                    </button>
+                                    <div className="card-actions">
+                                        <button
+                                            onClick={(e) => handleShare(project, e)}
+                                            className="share-btn"
+                                            title={t.projects.share}
+                                        >
+                                            <IconShare className="share-icon" />
+                                        </button>
+                                        <button
+                                            onClick={(e) => handleDelete(projectId, e)}
+                                            className="delete-btn"
+                                        >
+                                            <IconTrash className="delete-icon" />
+                                        </button>
+                                    </div>
                                 </div>
 
                                 <div className="platform-badge">
@@ -139,6 +177,35 @@ export const Projects: React.FC = () => {
                             </div>
                         );
                     })}
+                </div>
+            )}
+
+            {/* Share Modal */}
+            {shareModalOpen && (
+                <div className="modal-overlay" onClick={handleCloseModal}>
+                    <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+                        <div className="modal-header">
+                            <h2>{t.projects.shareTitle}</h2>
+                            <button onClick={handleCloseModal} className="modal-close">×</button>
+                        </div>
+                        <div className="modal-body">
+                            <p className="modal-description">{t.projects.shareDesc}</p>
+                            <div className="share-url-container">
+                                <input
+                                    type="text"
+                                    value={shareUrl}
+                                    readOnly
+                                    className="share-url-input"
+                                />
+                                <button
+                                    onClick={handleCopyLink}
+                                    className="copy-btn"
+                                >
+                                    {copied ? t.projects.copied : t.projects.copyLink}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             )}
         </div>
