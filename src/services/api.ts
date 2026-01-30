@@ -94,5 +94,13 @@ export const api = {
     },
     getBuildRecord: () => {
         return client.get('/api/buildRecord');
+    },
+    // Track game click/play statistics
+    trackGameClick: (gameId: string, sharedBy?: string) => {
+        return client.post('/api/game/track', { gameId, sharedBy });
+    },
+    // Get game statistics
+    getGameStats: (gameId: string) => {
+        return client.get(`/api/game/stats/${gameId}`);
     }
 };
