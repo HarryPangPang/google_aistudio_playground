@@ -71,22 +71,8 @@ export const GameMarket: React.FC = () => {
         setGameStats(stats);
     };
 
-    const handlePlayGame = async (id: string) => {
-        // Track click with shared_by if present in URL
-        try {
-            const params = new URLSearchParams(window.location.search);
-            const sharedBy = params.get('shared_by');
-            await api.trackGameClick(id, sharedBy || undefined);
-
-            // Update local stats immediately
-            setGameStats(prev => ({
-                ...prev,
-                [id]: (prev[id] || 0) + 1
-            }));
-        } catch (error) {
-            console.error('Failed to track game click:', error);
-        }
-
+    const handlePlayGame = (id: string) => {
+        // Tracking is now handled server-side when the deployment page loads
         window.open(`/deployments/${id}/`, '_blank');
     };
 
@@ -95,7 +81,8 @@ export const GameMarket: React.FC = () => {
         const gameId = game.id;
         const userId = user?.id || '';
         const baseUrl = window.location.origin;
-        const url = `${baseUrl}/#/market/games?game_id=${gameId}&shared_by=${userId}`;
+        // 直接分享游戏部署页面的链接，带上分享者ID
+        const url = `${baseUrl}/deployments/${gameId}/?shared_by=${userId}`;
         setShareUrl(url);
         setCurrentGameId(gameId);
         setShareModalOpen(true);
@@ -138,13 +125,13 @@ export const GameMarket: React.FC = () => {
                             <h3 className="card-title" title={game.file_name}>
                                 {game.file_name.replace(/\.(zip|rar)$/i, '')}
                             </h3>
-                            {/* <button
+                            <button
                                 onClick={(e) => handleShare(game, e)}
                                 className="share-btn-icon"
                                 title={$l('market.share')}
                             >
                                 <IconShare />
-                            </button> */}
+                            </button>
                         </div>
                         <div className="card-info">
                             <div className="info-row">

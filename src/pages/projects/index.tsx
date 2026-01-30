@@ -112,13 +112,13 @@ export const Projects: React.FC = () => {
                                         <IconFolder />
                                     </div>
                                     <div className="card-actions">
-                                        <button
+                                        {/* <button
                                             onClick={(e) => handleShare(project, e)}
                                             className="share-btn"
                                             title={t.projects.share}
                                         >
                                             <IconShare className="share-icon" />
-                                        </button>
+                                        </button> */}
                                         <button
                                             onClick={(e) => handleDelete(projectId, e)}
                                             className="delete-btn"
