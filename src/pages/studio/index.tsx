@@ -79,6 +79,7 @@ const Playground: React.FC = () => {
             <DeploymentModal
                 deployUrl={deployUrl}
                 onClose={() => setDeployUrl('')}
+                open={!!deployUrl}
             />
 
             <DeployConfirmModal

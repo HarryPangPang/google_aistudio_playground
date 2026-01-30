@@ -5,13 +5,14 @@ import './css/DeploymentModal.scss';
 interface DeploymentModalProps {
     deployUrl: string;
     onClose: () => void;
+    open?:boolean;
 }
 
-export const DeploymentModal: React.FC<DeploymentModalProps> = ({ deployUrl, onClose }) => {
+export const DeploymentModal: React.FC<DeploymentModalProps> = ({ deployUrl,open=false,onClose }) => {
     const { $l } = useI18n();
 
     if (!deployUrl) return null;
-
+    if(!open) return null;
     return (
         <div className="deployment-modal-overlay">
             <div className="deployment-modal">

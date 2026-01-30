@@ -130,12 +130,6 @@ export const InputArea: React.FC<InputAreaProps> = ({
                         value={prompt}
                         onChange={(e) => setPrompt(e.target.value)}
                         placeholder={$l('studio.input.placeholder')}
-                        onKeyDown={(e) => {
-                            if (e.key === 'Enter' && !e.shiftKey) {
-                                e.preventDefault();
-                                onGenerate();
-                            }
-                        }}
                     />
                     <button
                         className="send-btn"

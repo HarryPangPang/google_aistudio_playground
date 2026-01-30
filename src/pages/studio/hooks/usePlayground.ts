@@ -36,7 +36,7 @@ export function usePlayground() {
     const [platform, setPlatform] = useState<Platform>(DEFAULT_PLATFORM);
     const [model, setModel] = useState(DEFAULT_MODEL);
     const [isGenerating, setIsGenerating] = useState(false);
-    const [loadingStatus, setLoadingStatus] = useState(''); 
+    const [loadingStatus, setLoadingStatus] = useState('');
     const [showDeployConfirm, setShowDeployConfirm] = useState(false);
     const [pendingDeployAppId, setPendingDeployAppId] = useState('');
 
@@ -128,12 +128,10 @@ export function usePlayground() {
         }
     };
 
-    // Re-run initApp whenever the URL search params change
     useEffect(() => {
         initApp();
     }, [location.search]);
 
-    // ... (rest of the functions: handleSave, handleDeploy, saveToHistory, handleGenerate, handleDownload, handleConfirmDeploy)
 
     const handleSave = async () => {
         setIsSaving(true);
@@ -147,32 +145,16 @@ export function usePlayground() {
         }
     };
 
-    const handleDeploy = async () => {
+    const handleDeploy = async (id = appId) => {
         setIsDeploying(true);
         setDeployUrl('');
+        const driveid = appId || id;
         try {
-            const data: any = await api.deploywithcode({ id: appId });
+            const data: any = await api.deploywithcode({ id: driveid });
             const url = `${window.location.origin}/${data.url}`;
             setDeployUrl(url);
+            afterDeploy(url, driveid);
 
-            // Update project with deploy URL
-            try {
-                const history = JSON.parse(localStorage.getItem('chat_history') || '[]');
-                const projectIndex = history.findIndex((item: any) =>
-                    item.driveid === appId || item.id === appId
-                );
-                if (projectIndex !== -1) {
-                    history[projectIndex] = {
-                        ...history[projectIndex],
-                        deployUrl: url,
-                        status: 'deployed',
-                        updatedAt: Date.now()
-                    };
-                    localStorage.setItem('chat_history', JSON.stringify(history));
-                }
-            } catch (e) {
-                console.error('Failed to update deploy URL:', e);
-            }
         } catch (err: any) {
             console.error('Deploy error:', err);
             alert('Deploy failed: ' + err.message);
@@ -182,11 +164,38 @@ export function usePlayground() {
         }
     };
 
+    const afterDeploy = (url, driveid) => {
+        // Update project with deploy URL
+        try {
+            const history = JSON.parse(localStorage.getItem('chat_history') || '[]');
+            const projectIndex = history.findIndex((item: any) =>
+                item.driveid === driveid || item.id === driveid
+            );
+            if (projectIndex !== -1) {
+                history[projectIndex] = {
+                    ...history[projectIndex],
+                    deployUrl: url,
+                    status: 'deployed',
+                    updatedAt: Date.now()
+                };
+                localStorage.setItem('chat_history', JSON.stringify(history));
+            }
+        } catch (e) {
+            console.error('Failed to update deploy URL:', e);
+        }
+        
+        // 结束部署状态
+        window.open(url, '_blank');
+        setIsDeploying(false);
+        setLoadingStatus('');
+        setIsGenerating(false);
+    }
+
     const saveToHistory = (id: string, currentPrompt: string, chatContent: string, selectedModel: number) => {
         try {
             const history = JSON.parse(localStorage.getItem('chat_history') || '[]');
             let existingIndex = -1;
-            
+
             if (id) {
                 existingIndex = history.findIndex((item: any) =>
                     item.driveid === id || item.id === id
@@ -239,9 +248,9 @@ export function usePlayground() {
 
     const handleGenerate = async () => {
         if (!prompt.trim()) return;
-
+        let driveid = appId;
         const currentPrompt = prompt;
-        setPrompt(''); 
+        setPrompt('');
         setIsGenerating(true);
         setLoadingStatus('creating');
         setDeployUrl('');
@@ -249,11 +258,12 @@ export function usePlayground() {
             if (!appId) {
                 const res: any = await api.initChatContent(currentPrompt, model);
                 const chatDomContent = res?.data?.chatDomContent || res?.data?.chatDomContent || '';
-                const driveid = res?.data?.driveid || res?.driveid || '';
+                driveid = res?.data?.driveid || res?.driveid || '';
+                const deployUrl = `${window.location.origin}/${res.url}`;
                 setChatContent(chatDomContent);
                 setAppId(driveid);
                 setPendingDeployAppId(driveid);
-
+                setDeployUrl(deployUrl);
                 saveToHistory(driveid, currentPrompt, chatDomContent, model?.value);
             } else {
                 const res: any = await api.sendChatMsg({
@@ -261,15 +271,23 @@ export function usePlayground() {
                     driveid: appId,
                     model: model
                 });
+                const deployUrl = `${window.location.origin}/${res.url}`;
                 const chatDomContent = res?.chatDomContent || '';
+                setDeployUrl(deployUrl);
                 setChatContent(chatDomContent);
                 setPendingDeployAppId(appId);
                 saveToHistory(appId, currentPrompt, chatDomContent, model.value);
             }
-
-            setLoadingStatus('');
-            setIsGenerating(false);
-            setShowDeployConfirm(true);
+            // 暂时隐藏
+            // setLoadingStatus('');
+            // setIsGenerating(false);
+            // setShowDeployConfirm(true); 
+            // 先改成直接部署
+            setIsGenerating(true)
+            setLoadingStatus('deploying');
+            setIsDeploying(true);
+            console.log('Auto deploying for appId:', driveid);
+            afterDeploy(deployUrl, driveid);
 
         } catch (error) {
             console.error('Failed to send chat message: ', error);
@@ -362,7 +380,6 @@ export function usePlayground() {
 
             const deployUrl = `${window.location.origin}/${data.url}`;
             setDeployUrl(deployUrl);
-
             // Save to history
             try {
                 const history = JSON.parse(localStorage.getItem('chat_history') || '[]');

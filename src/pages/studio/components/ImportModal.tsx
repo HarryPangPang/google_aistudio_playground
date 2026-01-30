@@ -181,7 +181,6 @@ export const ImportModal: React.FC<ImportModalProps> = ({ visible, onClose, onIm
                                             : 'https://example.com/project.zip'
                                     }
                                     className={error ? 'error' : ''}
-                                    onKeyPress={e => e.key === 'Enter' && handleSubmit()}
                                 />
                                 <button className="paste-btn" onClick={handlePaste} title={$l('studio.import.paste')}>
                                     粘贴
