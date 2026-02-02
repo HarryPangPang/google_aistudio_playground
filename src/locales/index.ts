@@ -126,6 +126,7 @@ export const zhCN = {
         copyLink: '复制链接',
         copied: '已复制',
         playedBy: '人玩过',
+        creator: '创作者',
     },
     rank: {
         title: '热门游戏排行榜',
@@ -263,6 +264,7 @@ export const enUS = {
         copyLink: 'Copy Link',
         copied: 'Copied',
         playedBy: 'plays',
+        creator: 'Creator',
     },
     rank: {
         title: 'Hot Game Ranking',

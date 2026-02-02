@@ -153,6 +153,14 @@ export const GameMarket: React.FC = () => {
                             </button>
                         </div>
                         <div className="card-info">
+                            {game.username && (
+                                <div className="info-row">
+                                    <span className="info-label">👤 {$l('market.creator')}:</span>
+                                    <span className="creator-name">
+                                        {game.username}
+                                    </span>
+                                </div>
+                            )}
                             <div className="info-row">
                                 <span className="info-label">{$l('market.time')}:</span>
                                 <span className="game-date">
