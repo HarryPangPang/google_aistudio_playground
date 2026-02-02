@@ -102,5 +102,39 @@ export const api = {
     // Get game statistics
     getGameStats: (gameId: string) => {
         return client.get(`/api/game/stats/${gameId}`);
+    },
+
+    // Project APIs - 项目管理
+    // 创建项目
+    createProject: (projectData: any) => {
+        return client.post('/api/projects', projectData);
+    },
+    // 更新项目
+    updateProject: (id: string, projectData: any) => {
+        return client.put(`/api/projects/${id}`, projectData);
+    },
+    // 创建或更新项目（兼容方法）
+    saveProject: (projectData: any) => {
+        return client.post('/api/projects/save', projectData);
+    },
+    // 获取单个项目
+    getProject: (id: string) => {
+        return client.get(`/api/projects/${id}`);
+    },
+    // 根据 driveid 获取项目
+    getProjectByDriveid: (driveid: string) => {
+        return client.get(`/api/projects/by-driveid/${driveid}`);
+    },
+    // 获取项目列表
+    getProjects: (params?: { status?: string; limit?: number; offset?: number }) => {
+        return client.get('/api/projects', { params });
+    },
+    // 删除项目
+    deleteProject: (id: string) => {
+        return client.delete(`/api/projects/${id}`);
+    },
+    // 批量迁移项目
+    migrateProjects: (projects: any[]) => {
+        return client.post('/api/projects/migrate', { projects });
     }
 };

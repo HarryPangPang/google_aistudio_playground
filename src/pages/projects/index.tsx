@@ -5,6 +5,7 @@ import { useAuth } from '../../context/AuthContext';
 import { DEFAULT_PLATFORM, getPlatformById } from '../../config/platforms';
 import { canContinueChat, canPreview, getProjectTitle, type Project } from '../../types/project';
 import { loadAndMigrateProjects } from '../../utils/projectMigration';
+import { api } from '../../services/api';
 import './Projects.scss';
 
 export const Projects: React.FC = () => {
@@ -14,34 +15,127 @@ export const Projects: React.FC = () => {
     const [shareModalOpen, setShareModalOpen] = useState(false);
     const [shareUrl, setShareUrl] = useState('');
     const [copied, setCopied] = useState(false);
+    const [isMigrating, setIsMigrating] = useState(false);
 
     useEffect(() => {
-        loadProjects();
+        // 先尝试迁移，然后加载项目
+        migrateLocalStorageProjects().then(() => {
+            loadProjects();
+        });
     }, []);
 
-    const loadProjects = () => {
+    // 迁移 localStorage 中的项目到数据库
+    const migrateLocalStorageProjects = async () => {
+        // 检查是否已经迁移过
+        const migrated = localStorage.getItem('projects_migrated');
+        if (migrated === 'true') {
+            return; // 已经迁移过，跳过
+        }
+
         try {
+            setIsMigrating(true);
+
+            // 从 localStorage 加载项目
+            const history = JSON.parse(localStorage.getItem('chat_history') || '[]');
+
+            if (history.length === 0) {
+                // 没有项目需要迁移
+                localStorage.setItem('projects_migrated', 'true');
+                return;
+            }
+
+            console.log(`开始迁移 ${history.length} 个项目到数据库...`);
+
             // 使用迁移函数加载和升级旧数据
+            const migratedProjects = loadAndMigrateProjects();
+
+            // 调用 API 批量迁移
+            const response: any = await api.migrateProjects(migratedProjects);
+
+            if (response && response.success) {
+                console.log('迁移成功:', response.data);
+                // 标记为已迁移
+                localStorage.setItem('projects_migrated', 'true');
+            }
+        } catch (error) {
+            console.error('迁移项目失败:', error);
+            // 即使失败也不阻止用户使用
+        } finally {
+            setIsMigrating(false);
+        }
+    };
+
+    const loadProjects = async () => {
+        try {
+            // 优先从 API 加载项目
+            const response: any = await api.getProjects();
+            if (response && response.success && response.data) {
+                // 转换数据格式以匹配前端 Project 类型
+                const apiProjects = response.data.map((p: any) => ({
+                    id: p.id,
+                    driveid: p.driveid,
+                    type: p.type,
+                    platformId: p.platform_id,
+                    title: p.title,
+                    prompt: p.prompt,
+                    chatContent: p.chat_content,
+                    deployUrl: p.deploy_url,
+                    deployType: p.deploy_type,
+                    status: p.status,
+                    model: p.model || (p.model_label && p.model_value !== undefined ? {
+                        label: p.model_label,
+                        value: p.model_value
+                    } : undefined),
+                    files: p.files,
+                    sourceUrl: p.source_url,
+                    createdAt: p.created_at,
+                    updatedAt: p.updated_at
+                }));
+                setProjects(apiProjects);
+                return;
+            }
+        } catch (e) {
+            console.error('Failed to load projects from API:', e);
+        }
+
+        // 后备方案：从 localStorage 加载
+        try {
             const migratedProjects = loadAndMigrateProjects();
             setProjects(migratedProjects);
         } catch (e) {
-            console.error('Failed to load projects:', e);
-            // 降级处理：直接加载原始数据
+            console.error('Failed to load projects from localStorage:', e);
+            // 最后降级处理：直接加载原始数据
             try {
                 const history = JSON.parse(localStorage.getItem('chat_history') || '[]');
                 setProjects(history);
             } catch (fallbackError) {
-                console.error('Fallback also failed:', fallbackError);
+                console.error('All fallbacks failed:', fallbackError);
                 setProjects([]);
             }
         }
     };
 
-    const handleDelete = (id: string, e: React.MouseEvent) => {
+    const handleDelete = async (id: string, e: React.MouseEvent) => {
         e.stopPropagation();
         if (window.confirm(t.projects.deleteConfirm)) {
+            try {
+                // 先从 API 删除
+                await api.deleteProject(id);
+            } catch (error) {
+                console.error('Failed to delete from API:', error);
+            }
+
+            // 同时从 localStorage 删除
+            try {
+                const history = JSON.parse(localStorage.getItem('chat_history') || '[]');
+                const newHistory = history.filter((p: any) => (p.id || p.driveid) !== id);
+                localStorage.setItem('chat_history', JSON.stringify(newHistory));
+            } catch (error) {
+                console.error('Failed to delete from localStorage:', error);
+            }
+
+            // 更新UI
             const newProjects = projects.filter(p => (p.id || p.driveid) !== id);
-            localStorage.setItem('chat_history', JSON.stringify(newProjects));
             setProjects(newProjects);
         }
     };
@@ -88,7 +182,13 @@ export const Projects: React.FC = () => {
     return (
         <div className="projects-container">
             <h1 className="projects-title">{t.projects.title}</h1>
-            
+
+            {isMigrating && (
+                <div className="migration-notice">
+                    <p>正在迁移项目数据到服务器...</p>
+                </div>
+            )}
+
             {projects.length === 0 ? (
                 <div className="projects-empty-state">
                     <IconFolder className="mx-auto mb-4 empty-icon" />

@@ -52,6 +52,44 @@ export function usePlayground() {
     };
 
     const initHistory = async (driveid: string) => {
+        // 优先从数据库加载项目
+        try {
+            const response: any = await api.getProjectByDriveid(driveid);
+            if (response && response.success && response.data) {
+                const project = response.data;
+
+                if (project.chat_content) {
+                    setChatContent(project.chat_content);
+                }
+
+                // 恢复模型信息
+                if (project.model) {
+                    setModel(project.model);
+                } else if (project.model_label && project.model_value !== undefined) {
+                    setModel({
+                        label: project.model_label,
+                        value: project.model_value
+                    });
+                } else {
+                    setModel(DEFAULT_MODEL);
+                }
+
+                // 恢复平台信息
+                if (project.platform_id) {
+                    const { getPlatformById } = await import('../../../config/platforms');
+                    const savedPlatform = getPlatformById(project.platform_id);
+                    if (savedPlatform) {
+                        setPlatform(savedPlatform);
+                    }
+                }
+
+                return;
+            }
+        } catch (e) {
+            console.warn('Failed to load from API, falling back to localStorage:', e);
+        }
+
+        // 后备方案：从 localStorage 加载
         try {
             const history = JSON.parse(localStorage.getItem('chat_history') || '[]');
             const item = history.find((i: any) => i.driveid === driveid || i.id === driveid);
@@ -84,16 +122,16 @@ export function usePlayground() {
                 return;
             }
         } catch (e) {
-            console.warn('Failed to read from local storage', e);
+            console.warn('Failed to read from localStorage', e);
         }
 
+        // 最后尝试从旧的 chat content API 加载
         try {
             const chatData: any = await api.getChatContent(driveid);
             if (chatData && chatData.chatDomContent) {
                 setChatContent(chatData.chatDomContent);
             }
         } catch (chatErr) {
-            alert('Failed to load chat content, reloading...');
             console.warn('Failed to load chat content:', chatErr);
         }
     };
@@ -164,8 +202,21 @@ export function usePlayground() {
         }
     };
 
-    const afterDeploy = (url, driveid) => {
-        // Update project with deploy URL
+    const afterDeploy = async (url, driveid) => {
+        // Update project with deploy URL in database
+        try {
+            const response: any = await api.getProjectByDriveid(driveid);
+            if (response && response.success && response.data) {
+                await api.updateProject(response.data.id, {
+                    deploy_url: url,
+                    status: 'deployed'
+                });
+            }
+        } catch (e) {
+            console.error('Failed to update deploy URL in database:', e);
+        }
+
+        // 同时更新 localStorage 作为后备
         try {
             const history = JSON.parse(localStorage.getItem('chat_history') || '[]');
             const projectIndex = history.findIndex((item: any) =>
@@ -181,9 +232,9 @@ export function usePlayground() {
                 localStorage.setItem('chat_history', JSON.stringify(history));
             }
         } catch (e) {
-            console.error('Failed to update deploy URL:', e);
+            console.error('Failed to update deploy URL in localStorage:', e);
         }
-        
+
         // 结束部署状态
         window.open(url, '_blank');
         setIsDeploying(false);
@@ -191,8 +242,52 @@ export function usePlayground() {
         setIsGenerating(false);
     }
 
-    const saveToHistory = (id: string, currentPrompt: string, chatContent: string, selectedModel: number) => {
+    const saveToHistory = async (id: string, currentPrompt: string, chatContent: string, selectedModel: number) => {
         try {
+            // 首先尝试从 API 获取现有项目
+            let existingProject = null;
+            try {
+                const response: any = await api.getProjectByDriveid(id);
+                if (response && response.success) {
+                    existingProject = response.data;
+                }
+            } catch (e) {
+                // 项目不存在，创建新项目
+                console.log('Project not found in DB, will create new one');
+            }
+
+            if (existingProject) {
+                // 更新现有项目
+                const prompts = existingProject.prompt ?
+                    (Array.isArray(existingProject.prompt) ? existingProject.prompt : [existingProject.prompt])
+                    : [];
+                prompts.push(currentPrompt);
+
+                await api.updateProject(existingProject.id, {
+                    prompt: prompts,
+                    title: prompts[0], // 使用第一条 prompt 作为标题
+                    chat_content: chatContent,
+                    model_label: model.label,
+                    model_value: selectedModel,
+                    platform_id: platform.id
+                });
+            } else {
+                // 创建新项目
+                await api.createProject({
+                    id: id || `chat-${Date.now()}`,
+                    driveid: id || '',
+                    type: 'ai-chat',
+                    platform_id: platform.id,
+                    title: currentPrompt,
+                    prompt: [currentPrompt],
+                    chat_content: chatContent,
+                    model_label: model.label,
+                    model_value: selectedModel,
+                    status: 'draft'
+                });
+            }
+
+            // 同时保存到 localStorage 作为后备
             const history = JSON.parse(localStorage.getItem('chat_history') || '[]');
             let existingIndex = -1;
 
@@ -210,7 +305,7 @@ export function usePlayground() {
                 const updatedItem = {
                     ...item,
                     prompt: prompts,
-                    title: prompts[0], // 使用第一条 prompt 作为标题
+                    title: prompts[0],
                     chatContent: chatContent,
                     model: {
                         label: model.label,
@@ -380,11 +475,29 @@ export function usePlayground() {
 
             const deployUrl = `${window.location.origin}/${data.url}`;
             setDeployUrl(deployUrl);
-            // Save to history
+
+            // 保存到数据库
+            const projectId = `deploy-${Date.now()}`;
+            try {
+                await api.createProject({
+                    id: projectId,
+                    type: deployType === 'zip' ? 'zip-deploy' : 'url-deploy',
+                    platform_id: platform.id,
+                    title: file ? file.name : url,
+                    deploy_url: deployUrl,
+                    deploy_type: deployType,
+                    source_url: sourceUrl,
+                    status: 'deployed'
+                });
+            } catch (e) {
+                console.error('Failed to save project to database:', e);
+            }
+
+            // 同时保存到 localStorage 作为后备
             try {
                 const history = JSON.parse(localStorage.getItem('chat_history') || '[]');
                 const newProject = {
-                    id: `deploy-${Date.now()}`,
+                    id: projectId,
                     type: deployType === 'zip' ? 'zip-deploy' : 'url-deploy',
                     platformId: platform.id,
                     title: file ? file.name : url,
@@ -397,7 +510,7 @@ export function usePlayground() {
                 history.unshift(newProject);
                 localStorage.setItem('chat_history', JSON.stringify(history));
             } catch (e) {
-                console.error('Failed to save deploy history:', e);
+                console.error('Failed to save deploy history to localStorage:', e);
             }
 
             setLoadingStatus('');
