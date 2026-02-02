@@ -128,7 +128,7 @@ export const GameMarket: React.FC = () => {
                         <div className="game-cover">
                             {game.cover_url ? (
                                 <img
-                                    src={`http://localhost:80${game.cover_url}`}
+                                    src={`/deployments/${game.id}/cover.png`}
                                     alt={game.file_name}
                                     className="cover-image"
                                     loading="lazy"
