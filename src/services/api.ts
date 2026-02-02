@@ -62,11 +62,12 @@ export const api = {
     getChatContent: (driveid: string) => {
         return client.get('/api/chatcontent', { params: { driveid } });
     },
-    initChatContent: (prompt: string, model?: { label: string; value: number }) => {
+    initChatContent: (prompt: string, model?: { label: string; value: number | string }, platformId?: string) => {
         return client.post('/api/initChatContent', {
             prompt: formatPromot(prompt),
             modelLabel: model?.label,
-            modelValue: model?.value
+            modelValue: model?.value,
+            platformId: platformId || 'google-ai-studio' // 默认使用 Google AI Studio
         });
     },
     sendChatMsg: (payload: { prompt: string, driveid: string, model?: { label: string; value: number } }) => {
@@ -106,6 +107,102 @@ export const api = {
     // Get batch game statistics
     getBatchGameStats: (gameIds: string[]) => {
         return client.post('/api/game/stats/batch', { gameIds });
+    },
+
+    // Stream APIs - 流式请求
+    initChatContentStream: (prompt: string, model?: { label: string; value: number | string }, platformId?: string, onContent?: (content: string) => void, onComplete?: (data: any) => void, onError?: (error: string) => void) => {
+        const params = new URLSearchParams();
+        params.append('prompt', formatPromot(prompt));
+        if (model?.label) params.append('modelLabel', model.label);
+        if (platformId) params.append('platformId', platformId);
+
+        const url = `${API_HOST || _GLOBAL_VARS_.VITE_APP_PROXY}/api/initChatContent/stream?${params.toString()}`;
+
+        // Add driveid and auth token to URL
+        if (typeof window !== 'undefined') {
+            const hash = window.location.hash;
+            const searchIndex = hash.indexOf('?');
+            const search = searchIndex !== -1 ? hash.substring(searchIndex) : '';
+            const urlParams = new URLSearchParams(search);
+            const driveId = urlParams.get('driveid');
+            if (driveId) {
+                params.append('driveid', driveId);
+            }
+        }
+
+        const eventSource = new EventSource(url);
+
+        eventSource.addEventListener('content', (event) => {
+            const data = JSON.parse(event.data);
+            if (onContent) onContent(data.content);
+        });
+
+        eventSource.addEventListener('driveid', (event) => {
+            const data = JSON.parse(event.data);
+            console.log('Received driveid:', data.driveid);
+        });
+
+        eventSource.addEventListener('complete', (event) => {
+            const data = JSON.parse(event.data);
+            if (onComplete) onComplete(data);
+            eventSource.close();
+        });
+
+        eventSource.addEventListener('error', (event: any) => {
+            console.error('SSE Error:', event);
+            if (event.data) {
+                try {
+                    const data = JSON.parse(event.data);
+                    if (onError) onError(data.error);
+                } catch (e) {
+                    if (onError) onError('Stream connection error');
+                }
+            } else {
+                if (onError) onError('Stream connection error');
+            }
+            eventSource.close();
+        });
+
+        return eventSource;
+    },
+
+    sendChatMsgStream: (payload: { prompt: string, driveid: string, model?: { label: string; value: number } }, onContent?: (content: string) => void, onComplete?: (data: any) => void, onError?: (error: string) => void) => {
+        const params = new URLSearchParams();
+        params.append('prompt', payload.prompt);
+        params.append('driveid', payload.driveid);
+        if (payload.model?.label) params.append('modelLabel', payload.model.label);
+
+        const url = `${API_HOST || _GLOBAL_VARS_.VITE_APP_PROXY}/api/chatmsg/stream?${params.toString()}`;
+
+        const eventSource = new EventSource(url);
+
+        eventSource.addEventListener('content', (event) => {
+            const data = JSON.parse(event.data);
+            if (onContent) onContent(data.content);
+        });
+
+        eventSource.addEventListener('complete', (event) => {
+            const data = JSON.parse(event.data);
+            if (onComplete) onComplete(data);
+            eventSource.close();
+        });
+
+        eventSource.addEventListener('error', (event: any) => {
+            console.error('SSE Error:', event);
+            if (event.data) {
+                try {
+                    const data = JSON.parse(event.data);
+                    if (onError) onError(data.error);
+                } catch (e) {
+                    if (onError) onError('Stream connection error');
+                }
+            } else {
+                if (onError) onError('Stream connection error');
+            }
+            eventSource.close();
+        });
+
+        return eventSource;
     },
 
     // Project APIs - 项目管理

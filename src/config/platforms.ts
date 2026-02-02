@@ -47,12 +47,13 @@ export const PLATFORMS: Record<string, Platform> = {
         name: 'Anthropic',
         displayName: 'Claude',
         icon: '🧠',
-        status: 'coming-soon',
+        status: 'active',
         color: '#CC9B7A',
         models: [
-            { label: 'Claude 3.5 Sonnet', value: 'claude-3-5-sonnet' },
-            { label: 'Claude 3 Opus', value: 'claude-3-opus' },
-            { label: 'Claude 3 Haiku', value: 'claude-3-haiku' },
+            { label: 'Claude 3.5 Sonnet', value: 'claude-3-5-sonnet-20241022', description: '最新的 Claude 3.5 Sonnet 模型' },
+            // { label: 'Claude 3 Opus', value: 'claude-3-opus-20240229', description: '最强大的 Claude 3 模型' },
+            // { label: 'Claude 3 Sonnet', value: 'claude-3-sonnet-20240229', description: '平衡性能与成本' },
+            // { label: 'Claude 3 Haiku', value: 'claude-3-haiku-20240307', description: '最快速的 Claude 3 模型' },
         ]
     },
     DEEPSEEK: {

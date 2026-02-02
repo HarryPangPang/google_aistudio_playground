@@ -349,41 +349,83 @@ export function usePlayground() {
         setIsGenerating(true);
         setLoadingStatus('creating');
         setDeployUrl('');
+
         try {
             if (!appId) {
-                const res: any = await api.initChatContent(currentPrompt, model);
-                const chatDomContent = res?.data?.chatDomContent || res?.data?.chatDomContent || '';
-                driveid = res?.data?.driveid || res?.driveid || '';
-                const deployUrl = `${window.location.origin}/${res.url}`;
-                setChatContent(chatDomContent);
-                setAppId(driveid);
-                setPendingDeployAppId(driveid);
-                setDeployUrl(deployUrl);
-                saveToHistory(driveid, currentPrompt, chatDomContent, model?.value);
-            } else {
-                const res: any = await api.sendChatMsg({
-                    prompt: currentPrompt,
-                    driveid: appId,
-                    model: model
-                });
-                const deployUrl = `${window.location.origin}/${res.url}`;
-                const chatDomContent = res?.chatDomContent || '';
-                setDeployUrl(deployUrl);
-                setChatContent(chatDomContent);
-                setPendingDeployAppId(appId);
-                saveToHistory(appId, currentPrompt, chatDomContent, model.value);
-            }
-            // 暂时隐藏
-            // setLoadingStatus('');
-            // setIsGenerating(false);
-            // setShowDeployConfirm(true); 
-            // 先改成直接部署
-            setIsGenerating(true)
-            setLoadingStatus('deploying');
-            setIsDeploying(true);
-            console.log('Auto deploying for appId:', driveid);
-            afterDeploy(deployUrl, driveid);
+                // 使用流式 API
+                api.initChatContentStream(
+                    currentPrompt,
+                    model,
+                    platform.id,
+                    // onContent - 实时更新聊天内容
+                    (content) => {
+                        setChatContent(content);
+                    },
+                    // onComplete - 完成后处理
+                    (data) => {
+                        driveid = data.driveid;
+                        const deployUrl = `${window.location.origin}/${data.url}`;
+                        setAppId(driveid);
+                        setPendingDeployAppId(driveid);
+                        setDeployUrl(deployUrl);
 
+                        // 保存历史记录
+                        const finalContent = document.querySelector('.ai-studio-chat-area .chat-content-container')?.innerHTML || '';
+                        saveToHistory(driveid, currentPrompt, finalContent, model?.value);
+
+                        // 自动部署
+                        setIsGenerating(true);
+                        setLoadingStatus('deploying');
+                        setIsDeploying(true);
+                        console.log('Auto deploying for appId:', driveid);
+                        afterDeploy(deployUrl, driveid);
+                    },
+                    // onError - 错误处理
+                    (error) => {
+                        console.error('Stream error:', error);
+                        setLoadingStatus('');
+                        setIsGenerating(false);
+                        alert('Generation failed: ' + error);
+                    }
+                );
+            } else {
+                // 使用流式 API 发送消息
+                api.sendChatMsgStream(
+                    {
+                        prompt: currentPrompt,
+                        driveid: appId,
+                        model: model
+                    },
+                    // onContent - 实时更新聊天内容
+                    (content) => {
+                        setChatContent(content);
+                    },
+                    // onComplete - 完成后处理
+                    (data) => {
+                        const deployUrl = `${window.location.origin}/${data.url}`;
+                        setDeployUrl(deployUrl);
+                        setPendingDeployAppId(appId);
+
+                        // 保存历史记录
+                        const finalContent = document.querySelector('.ai-studio-chat-area .chat-content-container')?.innerHTML || '';
+                        saveToHistory(appId, currentPrompt, finalContent, model.value);
+
+                        // 自动部署
+                        setIsGenerating(true);
+                        setLoadingStatus('deploying');
+                        setIsDeploying(true);
+                        console.log('Auto deploying for appId:', appId);
+                        afterDeploy(deployUrl, appId);
+                    },
+                    // onError - 错误处理
+                    (error) => {
+                        console.error('Stream error:', error);
+                        setLoadingStatus('');
+                        setIsGenerating(false);
+                        alert('Generation failed: ' + error);
+                    }
+                );
+            }
         } catch (error) {
             console.error('Failed to send chat message: ', error);
             setLoadingStatus('');
