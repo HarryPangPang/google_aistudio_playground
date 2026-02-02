@@ -103,6 +103,10 @@ export const api = {
     getGameStats: (gameId: string) => {
         return client.get(`/api/game/stats/${gameId}`);
     },
+    // Get batch game statistics
+    getBatchGameStats: (gameIds: string[]) => {
+        return client.post('/api/game/stats/batch', { gameIds });
+    },
 
     // Project APIs - 项目管理
     // 创建项目

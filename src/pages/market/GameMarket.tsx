@@ -56,19 +56,31 @@ export const GameMarket: React.FC = () => {
     }, []);
 
     const fetchGameStats = async (gameList: any[]) => {
-        const stats: GameStats = {};
-        for (const game of gameList) {
-            try {
-                const res: any = await api.getGameStats(game.id);
-                if (res.success && res.data) {
-                    stats[game.id] = res.data.playCount || 0;
-                }
-            } catch (error) {
-                console.error(`Failed to load stats for game ${game.id}:`, error);
-                stats[game.id] = 0;
-            }
+        if (gameList.length === 0) {
+            setGameStats({});
+            return;
         }
-        setGameStats(stats);
+
+        try {
+            // Batch fetch all game stats in a single request
+            const gameIds = gameList.map(game => game.id);
+            const res: any = await api.getBatchGameStats(gameIds);
+
+            if (res.success && res.data) {
+                setGameStats(res.data);
+            } else {
+                // Fallback to empty stats
+                const emptyStats: GameStats = {};
+                gameIds.forEach(id => emptyStats[id] = 0);
+                setGameStats(emptyStats);
+            }
+        } catch (error) {
+            console.error('Failed to load game stats:', error);
+            // Set all to 0 on error
+            const emptyStats: GameStats = {};
+            gameList.forEach(game => emptyStats[game.id] = 0);
+            setGameStats(emptyStats);
+        }
     };
 
     const handlePlayGame = (id: string) => {
