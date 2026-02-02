@@ -72,8 +72,12 @@ export const GameMarket: React.FC = () => {
     };
 
     const handlePlayGame = (id: string) => {
-        // Tracking is now handled server-side when the deployment page loads
-        window.open(`/deployments/${id}/`, '_blank');
+        // Add current user ID for tracking
+        const userId = user?.id || '';
+        const url = userId
+            ? `/deployments/${id}/?shared_by=${userId}`
+            : `/deployments/${id}/`;
+        window.open(url, '_blank');
     };
 
     const handleShare = (game: any, e: React.MouseEvent) => {
@@ -120,8 +124,23 @@ export const GameMarket: React.FC = () => {
                         className="market-card compact"
                         onClick={() => handlePlayGame(game.id)}
                     >
+                        {/* Cover Image */}
+                        <div className="game-cover">
+                            {game.cover_url ? (
+                                <img
+                                    src={`http://localhost:80${game.cover_url}`}
+                                    alt={game.file_name}
+                                    className="cover-image"
+                                    loading="lazy"
+                                />
+                            ) : (
+                                <div className="cover-placeholder">
+                                    <span className="cover-icon">🎮</span>
+                                </div>
+                            )}
+                        </div>
+
                         <div className="card-header">
-                            <span className="game-icon-small">🎮</span>
                             <h3 className="card-title" title={game.file_name}>
                                 {game.file_name.replace(/\.(zip|rar)$/i, '')}
                             </h3>

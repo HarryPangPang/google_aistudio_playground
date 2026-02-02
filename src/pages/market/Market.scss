@@ -1,9 +1,10 @@
 .market-container {
-    padding: 40px;
-    max-width: 1200px;
+    padding: 32px 24px;
+    max-width: 1400px;
     margin: 0 auto;
     height: 100%;
     overflow-y: auto;
+    background: linear-gradient(180deg, #fafafa 0%, #ffffff 100%);
 }
 
 .market-title {
@@ -11,34 +12,36 @@
     font-weight: 800;
     margin-bottom: 24px;
     color: #1f1f1f;
+    letter-spacing: -0.5px;
 }
 
 .market-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-    gap: 16px;
-    padding-bottom: 40px;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 20px;
+    padding-bottom: 48px;
 }
 
 .market-card {
-    border: 1px solid #eee;
-    border-radius: 12px;
+    border: 1px solid #e8e8e8;
+    border-radius: 16px;
     background-color: #fff;
-    transition: all 0.2s ease;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     cursor: pointer;
     overflow: hidden;
     display: flex;
     flex-direction: column;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 
     &.compact {
-        padding: 16px;
-        gap: 12px;
+        padding: 0;
+        gap: 0;
     }
 }
 
 .market-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08);
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
     border-color: #d0d0d0;
 }
 
@@ -59,7 +62,7 @@
 }
 
 .card-content {
-    padding: 20px;
+    padding: 16px;
     flex: 1;
     display: flex;
     flex-direction: column;
@@ -119,56 +122,119 @@
 
 .market-loading, .no-games {
     text-align: center;
-    padding: 60px;
-    color: #666;
+    padding: 80px 20px;
+    color: #888;
     font-size: 16px;
+    background: #fafafa;
+    border-radius: 16px;
+    border: 2px dashed #e0e0e0;
+}
+
+// Game Cover Styles
+.game-cover {
+    width: 100%;
+    height: 150px;
+    overflow: hidden;
+    background-color: #f3f4f6;
+    position: relative;
+
+    .cover-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+        transition: transform 0.3s ease;
+    }
+
+    .cover-placeholder {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        position: relative;
+        overflow: hidden;
+
+        // 添加装饰性背景
+        &::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: pulse 3s ease-in-out infinite;
+        }
+
+        .cover-icon {
+            font-size: 72px;
+            opacity: 0.95;
+            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.2));
+            position: relative;
+            z-index: 1;
+        }
+    }
+}
+
+.market-card:hover .game-cover .cover-image {
+    transform: scale(1.05);
+}
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 0.3;
+    }
+    50% {
+        opacity: 0.6;
+    }
 }
 
 // Compact card styles
 .card-header {
     display: flex;
     align-items: center;
-    gap: 10px;
-    padding-bottom: 12px;
-    border-bottom: 1px solid #f0f0f0;
-
-    .game-icon-small {
-        font-size: 24px;
-        flex-shrink: 0;
-    }
+    gap: 12px;
+    padding: 12px 16px;
+    border-bottom: 1px solid #f5f5f5;
+    background: linear-gradient(180deg, #ffffff 0%, #fafafa 100%);
 
     .card-title {
         margin: 0;
         font-size: 15px;
         font-weight: 600;
-        color: #111;
+        color: #1a1a1a;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
         flex: 1;
+        line-height: 1.4;
     }
 
     .share-btn-icon {
         background: none;
         border: none;
         cursor: pointer;
-        padding: 6px;
+        padding: 8px;
         display: flex;
         align-items: center;
         justify-content: center;
-        color: #666;
+        color: #888;
         transition: all 0.2s;
-        border-radius: 6px;
+        border-radius: 8px;
         flex-shrink: 0;
 
         &:hover {
-            background-color: #f5f5f5;
-            color: #7C3AED;
+            background-color: #f0f0f0;
+            color: #667eea;
+            transform: scale(1.1);
         }
 
         svg {
-            width: 18px;
-            height: 18px;
+            width: 20px;
+            height: 20px;
         }
     }
 }
@@ -178,78 +244,89 @@
     flex-direction: column;
     gap: 8px;
     font-size: 13px;
+    padding: 12px 16px;
 
     .info-row {
         display: flex;
         align-items: center;
-        gap: 8px;
+        gap: 10px;
     }
 
     .info-label {
-        color: #999;
+        color: #888;
         font-size: 12px;
-        min-width: 40px;
+        min-width: 42px;
         flex-shrink: 0;
+        font-weight: 500;
     }
 
     .game-date {
-        color: #666;
+        color: #555;
         font-size: 12px;
     }
 
     .status-badge {
         display: inline-flex;
         align-items: center;
-        padding: 2px 8px;
-        border-radius: 12px;
-        font-size: 12px;
-        font-weight: 500;
+        padding: 4px 10px;
+        border-radius: 14px;
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.3px;
 
         &.success {
-            background-color: #dcfce7;
-            color: #15803d;
+            background-color: #d1fae5;
+            color: #065f46;
         }
 
         &.pending {
             background-color: #fef3c7;
-            color: #a16207;
+            color: #92400e;
         }
     }
 
     .play-count {
-        color: #666;
-        font-size: 12px;
-        font-weight: 500;
+        color: #555;
+        font-size: 13px;
+        font-weight: 600;
     }
 }
 
 .play-button-compact {
-    width: 100%;
-    padding: 8px 12px;
-    background-color: #7C3AED;
+    width: calc(100% - 32px);
+    margin: 0 16px 16px 16px;
+    padding: 10px 14px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
     border: none;
-    border-radius: 8px;
-    font-size: 13px;
+    border-radius: 10px;
+    font-size: 14px;
     font-weight: 600;
     cursor: pointer;
-    transition: background-color 0.2s;
+    transition: all 0.3s ease;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 6px;
+    gap: 8px;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
 
     span {
-        font-size: 10px;
+        font-size: 12px;
     }
 
     &:hover {
-        background-color: #6D28D9;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
+        background: linear-gradient(135deg, #5a67d8 0%, #6b46a0 100%);
+    }
+
+    &:active {
+        transform: translateY(0);
     }
 }
 
 .market-card.compact:hover .play-button-compact {
-    background-color: #6D28D9;
+    transform: translateY(-2px);
 }
 
 // Modal styles
