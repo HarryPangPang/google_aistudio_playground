@@ -261,7 +261,8 @@ export const api = {
         onInit?: (data: { chatId: string; sessionId: string; model: string }) => void,
         onContent?: (content: string) => void,
         onComplete?: (data: any) => void,
-        onError?: (error: string) => void
+        onError?: (error: string) => void,
+        onThinking?: (thinking: string) => void
     ) => {
         const token = localStorage.getItem('auth_token');
         const url = `${API_HOST || _GLOBAL_VARS_.VITE_APP_PROXY}/api/codegen/init`;
@@ -304,6 +305,8 @@ export const api = {
                                     onInit(data);
                                 } else if (data.type === 'text' && onContent) {
                                     onContent(data.content);
+                                } else if (data.type === 'thinking' && onThinking) {
+                                    onThinking(data.content);
                                 } else if (data.type === 'complete' && onComplete) {
                                     onComplete(data.data);
                                 } else if (data.type === 'error' && onError) {
@@ -349,7 +352,8 @@ export const api = {
         },
         onContent?: (content: string) => void,
         onComplete?: (data: any) => void,
-        onError?: (error: string) => void
+        onError?: (error: string) => void,
+        onThinking?: (thinking: string) => void
     ) => {
         const token = localStorage.getItem('auth_token');
         const url = `${API_HOST || _GLOBAL_VARS_.VITE_APP_PROXY}/api/codegen/chat`;
@@ -390,6 +394,8 @@ export const api = {
 
                                 if (data.type === 'text' && onContent) {
                                     onContent(data.content);
+                                } else if (data.type === 'thinking' && onThinking) {
+                                    onThinking(data.content);
                                 } else if (data.type === 'complete' && onComplete) {
                                     onComplete(data.data);
                                 } else if (data.type === 'error' && onError) {

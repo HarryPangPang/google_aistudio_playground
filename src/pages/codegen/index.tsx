@@ -14,6 +14,7 @@ interface Model {
 interface Message {
     role: 'user' | 'assistant';
     content: string;
+    thinking?: string; // AI 的思考过程
     timestamp?: number;
 }
 
@@ -42,8 +43,10 @@ export const CodeGen: React.FC = () => {
     const [currentChatId, setCurrentChatId] = useState<string>('');
     const [generatedData, setGeneratedData] = useState<GeneratedData | null>(null);
     const [streamContent, setStreamContent] = useState<string>('');
+    const [streamThinking, setStreamThinking] = useState<string>(''); // 流式思考过程
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const streamContentRef = useRef<string>(''); // 用于跟踪 streamContent 的最新值
+    const streamThinkingRef = useRef<string>(''); // 用于跟踪 streamThinking 的最新值
 
     // Load models on mount
     useEffect(() => {
@@ -82,7 +85,9 @@ export const CodeGen: React.FC = () => {
         setPrompt('');
         setIsGenerating(true);
         setStreamContent('');
+        setStreamThinking('');
         streamContentRef.current = ''; // 重置 ref
+        streamThinkingRef.current = ''; // 重置 thinking ref
 
         try {
             if (currentChatId) {
@@ -101,11 +106,14 @@ export const CodeGen: React.FC = () => {
                         const assistantMessage: Message = {
                             role: 'assistant',
                             content: streamContentRef.current, // 使用 ref 中的最新值
+                            thinking: streamThinkingRef.current, // 添加思考过程
                             timestamp: Date.now()
                         };
                         setMessages(prev => [...prev, assistantMessage]);
                         setStreamContent('');
+                        setStreamThinking('');
                         streamContentRef.current = '';
+                        streamThinkingRef.current = '';
                         setGeneratedData(data);
                         setIsGenerating(false);
                     },
@@ -113,7 +121,13 @@ export const CodeGen: React.FC = () => {
                         console.error('Stream error:', error);
                         setIsGenerating(false);
                         setStreamContent('');
+                        setStreamThinking('');
                         streamContentRef.current = '';
+                        streamThinkingRef.current = '';
+                    },
+                    (thinking) => {
+                        streamThinkingRef.current += thinking;
+                        setStreamThinking(prev => prev + thinking);
                     }
                 );
             } else {
@@ -127,16 +141,21 @@ export const CodeGen: React.FC = () => {
                         setCurrentChatId(data.chatId);
                     },
                     (content) => {
+                        streamContentRef.current += content;
                         setStreamContent(prev => prev + content);
                     },
                     (data) => {
                         const assistantMessage: Message = {
                             role: 'assistant',
-                            content: streamContent,
+                            content: streamContentRef.current, // 使用 ref 中的最新值
+                            thinking: streamThinkingRef.current, // 添加思考过程
                             timestamp: Date.now()
                         };
                         setMessages(prev => [...prev, assistantMessage]);
                         setStreamContent('');
+                        setStreamThinking('');
+                        streamContentRef.current = '';
+                        streamThinkingRef.current = '';
                         setGeneratedData(data);
                         setCurrentChatId(data.chatId);
                         setIsGenerating(false);
@@ -145,7 +164,13 @@ export const CodeGen: React.FC = () => {
                         console.error('Stream error:', error);
                         setIsGenerating(false);
                         setStreamContent('');
+                        setStreamThinking('');
                         streamContentRef.current = '';
+                        streamThinkingRef.current = '';
+                    },
+                    (thinking) => {
+                        streamThinkingRef.current += thinking;
+                        setStreamThinking(prev => prev + thinking);
                     }
                 );
             }
@@ -176,6 +201,9 @@ export const CodeGen: React.FC = () => {
         setMessages([]);
         setGeneratedData(null);
         setStreamContent('');
+        setStreamThinking('');
+        streamContentRef.current = '';
+        streamThinkingRef.current = '';
     };
 
     return (
@@ -214,17 +242,31 @@ export const CodeGen: React.FC = () => {
                                     <div className="message-header">
                                         {msg.role === 'user' ? t.codegen.chat.user : t.codegen.chat.assistant}
                                     </div>
+                                    {msg.thinking && (
+                                        <div className="message-thinking">
+                                            <div className="thinking-header">💭 思考过程</div>
+                                            <div className="thinking-content">{msg.thinking}</div>
+                                        </div>
+                                    )}
                                     <div className="message-text">{msg.content}</div>
                                 </div>
                             </div>
                         ))}
 
-                        {streamContent && (
+                        {(streamContent || streamThinking) && (
                             <div className="message assistant streaming">
                                 <div className="message-avatar">🤖</div>
                                 <div className="message-content">
                                     <div className="message-header">{t.codegen.chat.assistant}</div>
-                                    <div className="message-text">{streamContent}</div>
+                                    {streamThinking && (
+                                        <div className="message-thinking">
+                                            <div className="thinking-header">💭 思考过程</div>
+                                            <div className="thinking-content">{streamThinking}</div>
+                                        </div>
+                                    )}
+                                    {streamContent && (
+                                        <div className="message-text">{streamContent}</div>
+                                    )}
                                 </div>
                             </div>
                         )}

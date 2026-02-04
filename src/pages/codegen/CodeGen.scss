@@ -112,6 +112,33 @@
                             margin-bottom: 6px;
                         }
 
+                        .message-thinking {
+                            background: #f0f7ff;
+                            border-left: 3px solid #4285f4;
+                            padding: 12px 16px;
+                            margin-bottom: 12px;
+                            border-radius: 6px;
+
+                            .thinking-header {
+                                font-size: 13px;
+                                font-weight: 600;
+                                color: #4285f4;
+                                margin-bottom: 8px;
+                                display: flex;
+                                align-items: center;
+                                gap: 6px;
+                            }
+
+                            .thinking-content {
+                                font-size: 14px;
+                                line-height: 1.6;
+                                color: #555;
+                                white-space: pre-wrap;
+                                word-wrap: break-word;
+                                font-style: italic;
+                            }
+                        }
+
                         .message-text {
                             font-size: 15px;
                             line-height: 1.6;
