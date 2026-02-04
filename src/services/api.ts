@@ -266,6 +266,8 @@ export const api = {
         const token = localStorage.getItem('auth_token');
         const url = `${API_HOST || _GLOBAL_VARS_.VITE_APP_PROXY}/api/codegen/init`;
 
+        console.log('[API] Calling codegenInitStream:', url, payload);
+
         return fetch(url, {
             method: 'POST',
             headers: {
@@ -274,8 +276,13 @@ export const api = {
             },
             body: JSON.stringify({ ...payload, stream: true })
         }).then(response => {
+            console.log('[API] Response status:', response.status, response.statusText);
+
             if (!response.ok) {
-                throw new Error('Network response was not ok');
+                return response.text().then(text => {
+                    console.error('[API] Error response:', text);
+                    throw new Error(`HTTP ${response.status}: ${text || response.statusText}`);
+                });
             }
 
             const reader = response.body?.getReader();
@@ -347,6 +354,8 @@ export const api = {
         const token = localStorage.getItem('auth_token');
         const url = `${API_HOST || _GLOBAL_VARS_.VITE_APP_PROXY}/api/codegen/chat`;
 
+        console.log('[API] Calling codegenChatStream:', url, payload);
+
         return fetch(url, {
             method: 'POST',
             headers: {
@@ -355,8 +364,13 @@ export const api = {
             },
             body: JSON.stringify({ ...payload, stream: true })
         }).then(response => {
+            console.log('[API] Response status:', response.status, response.statusText);
+
             if (!response.ok) {
-                throw new Error('Network response was not ok');
+                return response.text().then(text => {
+                    console.error('[API] Error response:', text);
+                    throw new Error(`HTTP ${response.status}: ${text || response.statusText}`);
+                });
             }
 
             const reader = response.body?.getReader();

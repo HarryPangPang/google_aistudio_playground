@@ -1,0 +1,92 @@
+.sandpack-preview {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    background: #1e1e1e;
+    border-radius: 8px;
+    overflow: hidden;
+
+    // Loading state
+    &.loading {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        .loading-overlay {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+            color: #fff;
+
+            .loading-spinner {
+                width: 48px;
+                height: 48px;
+                border: 4px solid rgba(255, 255, 255, 0.1);
+                border-top-color: #4f46e5;
+                border-radius: 50%;
+                animation: spin 1s linear infinite;
+            }
+
+            p {
+                margin: 0;
+                font-size: 14px;
+                color: rgba(255, 255, 255, 0.7);
+            }
+        }
+    }
+
+    // Empty state
+    &.empty {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        .empty-state {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.6);
+
+            .empty-icon {
+                font-size: 64px;
+                margin-bottom: 16px;
+                opacity: 0.3;
+            }
+
+            p {
+                margin: 8px 0;
+                font-size: 14px;
+            }
+
+            .empty-hint {
+                font-size: 12px;
+                opacity: 0.6;
+            }
+        }
+    }
+
+    // Sandpack container
+    .sp-wrapper {
+        height: 100% !important;
+        border-radius: 8px;
+    }
+
+    .sp-layout {
+        height: 100% !important;
+        border: none !important;
+    }
+
+    .sp-preview-container {
+        height: 100% !important;
+    }
+
+    .sp-preview-iframe {
+        height: 100% !important;
+    }
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}

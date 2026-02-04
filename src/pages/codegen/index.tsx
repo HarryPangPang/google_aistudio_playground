@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useI18n } from '../../context/I18nContext';
 import { api } from '../../services/api';
+import { SandpackPreview } from './components/SandpackPreview';
 import './CodeGen.scss';
 
 interface Model {
@@ -20,6 +21,7 @@ interface GeneratedData {
     chatId: string;
     sessionId: string;
     files: string[];
+    fileContents?: Record<string, string>; // 添加文件内容
     zipFile?: string;
     zipPath?: string;
     model: string;
@@ -41,6 +43,7 @@ export const CodeGen: React.FC = () => {
     const [generatedData, setGeneratedData] = useState<GeneratedData | null>(null);
     const [streamContent, setStreamContent] = useState<string>('');
     const messagesEndRef = useRef<HTMLDivElement>(null);
+    const streamContentRef = useRef<string>(''); // 用于跟踪 streamContent 的最新值
 
     // Load models on mount
     useEffect(() => {
@@ -79,6 +82,7 @@ export const CodeGen: React.FC = () => {
         setPrompt('');
         setIsGenerating(true);
         setStreamContent('');
+        streamContentRef.current = ''; // 重置 ref
 
         try {
             if (currentChatId) {
@@ -90,16 +94,18 @@ export const CodeGen: React.FC = () => {
                         modelId: selectedModel
                     },
                     (content) => {
+                        streamContentRef.current += content;
                         setStreamContent(prev => prev + content);
                     },
                     (data) => {
                         const assistantMessage: Message = {
                             role: 'assistant',
-                            content: streamContent,
+                            content: streamContentRef.current, // 使用 ref 中的最新值
                             timestamp: Date.now()
                         };
                         setMessages(prev => [...prev, assistantMessage]);
                         setStreamContent('');
+                        streamContentRef.current = '';
                         setGeneratedData(data);
                         setIsGenerating(false);
                     },
@@ -107,6 +113,7 @@ export const CodeGen: React.FC = () => {
                         console.error('Stream error:', error);
                         setIsGenerating(false);
                         setStreamContent('');
+                        streamContentRef.current = '';
                     }
                 );
             } else {
@@ -138,6 +145,7 @@ export const CodeGen: React.FC = () => {
                         console.error('Stream error:', error);
                         setIsGenerating(false);
                         setStreamContent('');
+                        streamContentRef.current = '';
                     }
                 );
             }
@@ -261,59 +269,12 @@ export const CodeGen: React.FC = () => {
                     </div>
                 </div>
 
-                {/* Sidebar - Generated Files & Stats */}
-                <div className="sidebar-section">
-                    {generatedData && (
-                        <>
-                            <div className="files-panel">
-                                <h3>{t.codegen.files.title}</h3>
-                                {generatedData.files && generatedData.files.length > 0 ? (
-                                    <>
-                                        <ul className="files-list">
-                                            {generatedData.files.map((file, idx) => (
-                                                <li key={idx}>
-                                                    <span className="file-icon">📄</span>
-                                                    <span className="file-name">{file}</span>
-                                                </li>
-                                            ))}
-                                        </ul>
-                                        {generatedData.zipFile && (
-                                            <button
-                                                className="download-btn"
-                                                onClick={handleDownloadZip}
-                                            >
-                                                ⬇️ {t.codegen.files.download}
-                                            </button>
-                                        )}
-                                    </>
-                                ) : (
-                                    <p className="no-files">{t.codegen.files.noFiles}</p>
-                                )}
-                            </div>
-
-                            {generatedData.usage && (
-                                <div className="stats-panel">
-                                    <h3>{t.codegen.stats.tokens}</h3>
-                                    <div className="stat-item">
-                                        <span className="stat-label">Total:</span>
-                                        <span className="stat-value">{generatedData.usage.totalTokens}</span>
-                                    </div>
-                                    {generatedData.usage.promptTokens && (
-                                        <div className="stat-item">
-                                            <span className="stat-label">Prompt:</span>
-                                            <span className="stat-value">{generatedData.usage.promptTokens}</span>
-                                        </div>
-                                    )}
-                                    {generatedData.usage.completionTokens && (
-                                        <div className="stat-item">
-                                            <span className="stat-label">Completion:</span>
-                                            <span className="stat-value">{generatedData.usage.completionTokens}</span>
-                                        </div>
-                                    )}
-                                </div>
-                            )}
-                        </>
-                    )}
+                {/* Sandpack Preview */}
+                <div className="preview-section">
+                    <SandpackPreview
+                        files={generatedData?.fileContents || null}
+                        isLoading={isGenerating}
+                    />
                 </div>
             </div>
         </div>
