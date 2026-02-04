@@ -21,10 +21,10 @@ interface Message {
 interface GeneratedData {
     chatId: string;
     sessionId: string;
+    fileName: string; // 文件名标识，用于 AI 识别
     files: string[];
     fileContents?: Record<string, string>; // 添加文件内容
-    zipFile?: string;
-    zipPath?: string;
+    sourcePath?: string; // 源码目录路径
     model: string;
     usage?: {
         promptTokens?: number;
@@ -181,13 +181,6 @@ export const CodeGen: React.FC = () => {
         }
     };
 
-    const handleDownloadZip = () => {
-        if (generatedData?.zipFile) {
-            const API_HOST = _GLOBAL_VARS_.VITE_API_HOST || _GLOBAL_VARS_.VITE_APP_PROXY;
-            const downloadUrl = `${API_HOST}/codedist/${generatedData.zipFile}`;
-            window.open(downloadUrl, '_blank');
-        }
-    };
 
     const handleKeyPress = (e: React.KeyboardEvent) => {
         if (e.key === 'Enter' && !e.shiftKey) {
@@ -309,14 +302,6 @@ export const CodeGen: React.FC = () => {
                             </button>
                         </div>
                     </div>
-                </div>
-
-                {/* Sandpack Preview */}
-                <div className="preview-section">
-                    <SandpackPreview
-                        files={generatedData?.fileContents || null}
-                        isLoading={isGenerating}
-                    />
                 </div>
             </div>
         </div>
