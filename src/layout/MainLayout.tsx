@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { IconPlus, IconRobot, IconGame, IconTrophy, IconFolder, IconChart } from '../components/Icons';
+import { IconPlus, IconRobot, IconGame, IconTrophy, IconFolder, IconChart, IconCode } from '../components/Icons';
 import { useLayout } from '../context/LayoutContext';
 import { useI18n } from '../context/I18nContext';
 import { useAuth } from '../context/AuthContext';
@@ -55,6 +55,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
     const menuItems = [
         { id: 'create', label: t.menu.create, icon: IconPlus, path: '/' },
         { id: 'projects', label: t.menu.projects, icon: IconFolder, path: '/projects' },
+        { id: 'codegen', label: t.menu.codegen, icon: IconCode, path: '/codegen' },
         { id: 'game-market', label: t.menu.gameMarket, icon: IconGame, path: '/game-market' },
         { id: 'ranking', label: t.menu.ranking, icon: IconTrophy, path: '/ranking' },
         { id: 'earnings', label: t.menu.earnings, icon: IconChart, path: '/earnings' },

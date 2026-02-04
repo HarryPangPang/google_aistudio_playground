@@ -19,6 +19,7 @@ export const zhCN = {
     menu: {
         create: '创建项目',
         projects: '我的项目',
+        codegen: '代码生成',
         earnings: '收益中心',
         robotMarket: 'AI 机器人市场',
         gameMarket: '游戏市场',
@@ -134,6 +135,50 @@ export const zhCN = {
         play: '开始游戏',
         players: '玩家',
         rating: '评分',
+    },
+    codegen: {
+        title: '代码生成',
+        subtitle: '使用 AI 生成完整的项目代码',
+        input: {
+            placeholder: '描述你想要生成的代码或功能...',
+            send: '生成',
+            generating: '生成中...',
+        },
+        model: {
+            label: '选择模型',
+            loading: '加载模型...',
+        },
+        chat: {
+            emptyState: '开始描述你的需求，AI 将为你生成代码',
+            user: '你',
+            assistant: 'AI',
+        },
+        history: {
+            title: '对话历史',
+            empty: '暂无历史记录',
+            delete: '删除',
+            deleteConfirm: '确定要删除此对话吗？',
+        },
+        files: {
+            title: '生成的文件',
+            download: '下载 ZIP',
+            downloadAll: '下载所有文件',
+            noFiles: '暂无生成文件',
+        },
+        stats: {
+            messages: '条消息',
+            tokens: '个 Token',
+        },
+        error: {
+            generateFailed: '生成失败',
+            modelLoadFailed: '模型加载失败',
+            streamError: '流式响应错误',
+            networkError: '网络错误',
+        },
+        success: {
+            generated: '代码生成成功',
+            downloaded: '文件下载成功',
+        }
     }
 };
 
@@ -158,6 +203,7 @@ export const enUS = {
     menu: {
         create: 'Create',
         projects: 'Projects',
+        codegen: 'Code Gen',
         earnings: 'Earnings',
         robotMarket: 'AI Market',
         gameMarket: 'Game Market',
@@ -273,5 +319,49 @@ export const enUS = {
         play: 'Play',
         players: 'Players',
         rating: 'Rating',
+    },
+    codegen: {
+        title: 'Code Generation',
+        subtitle: 'Generate complete project code with AI',
+        input: {
+            placeholder: 'Describe the code or feature you want to generate...',
+            send: 'Generate',
+            generating: 'Generating...',
+        },
+        model: {
+            label: 'Select Model',
+            loading: 'Loading models...',
+        },
+        chat: {
+            emptyState: 'Start describing your requirements and AI will generate code for you',
+            user: 'You',
+            assistant: 'AI',
+        },
+        history: {
+            title: 'Chat History',
+            empty: 'No history yet',
+            delete: 'Delete',
+            deleteConfirm: 'Are you sure you want to delete this chat?',
+        },
+        files: {
+            title: 'Generated Files',
+            download: 'Download ZIP',
+            downloadAll: 'Download All Files',
+            noFiles: 'No files generated yet',
+        },
+        stats: {
+            messages: 'messages',
+            tokens: 'tokens',
+        },
+        error: {
+            generateFailed: 'Generation failed',
+            modelLoadFailed: 'Failed to load models',
+            streamError: 'Stream error',
+            networkError: 'Network error',
+        },
+        success: {
+            generated: 'Code generated successfully',
+            downloaded: 'Files downloaded successfully',
+        }
     }
 };

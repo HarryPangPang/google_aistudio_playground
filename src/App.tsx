@@ -10,6 +10,7 @@ import { I18nProvider } from './context/I18nContext';
 import { AuthProvider } from './context/AuthContext';
 import { Projects } from './pages/projects';
 import { Earnings } from './pages/earnings';
+import { CodeGen } from './pages/codegen';
 import { Login } from './pages/auth/Login';
 import { Register } from './pages/auth/Register';
 import { ProtectedRoute } from './components/ProtectedRoute';
@@ -38,6 +39,13 @@ export default function App() {
               <ProtectedRoute>
                 <MainLayout>
                   <Projects />
+                </MainLayout>
+              </ProtectedRoute>
+            } />
+            <Route path="/codegen" element={
+              <ProtectedRoute>
+                <MainLayout>
+                  <CodeGen />
                 </MainLayout>
               </ProtectedRoute>
             } />

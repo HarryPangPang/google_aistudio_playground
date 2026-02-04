@@ -237,5 +237,190 @@ export const api = {
     // 批量迁移项目
     migrateProjects: (projects: any[]) => {
         return client.post('/api/projects/migrate', { projects });
+    },
+
+    // CodeGen APIs - 代码生成（新架构，使用 Vercel AI SDK）
+    // 初始化代码生成会话（非流式）
+    codegenInit: (payload: {
+        prompt: string;
+        modelId: string;
+        projectId?: string;
+        currentPage?: string;
+    }) => {
+        return client.post('/api/codegen/init', payload);
+    },
+
+    // 初始化代码生成会话（流式）
+    codegenInitStream: (
+        payload: {
+            prompt: string;
+            modelId: string;
+            projectId?: string;
+            currentPage?: string;
+        },
+        onInit?: (data: { chatId: string; sessionId: string; model: string }) => void,
+        onContent?: (content: string) => void,
+        onComplete?: (data: any) => void,
+        onError?: (error: string) => void
+    ) => {
+        const token = localStorage.getItem('auth_token');
+        const url = `${API_HOST || _GLOBAL_VARS_.VITE_APP_PROXY}/api/codegen/init`;
+
+        return fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': token ? `Bearer ${token}` : ''
+            },
+            body: JSON.stringify({ ...payload, stream: true })
+        }).then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+
+            const reader = response.body?.getReader();
+            const decoder = new TextDecoder();
+
+            const readStream = () => {
+                reader?.read().then(({ done, value }) => {
+                    if (done) return;
+
+                    const chunk = decoder.decode(value);
+                    const lines = chunk.split('\n');
+
+                    lines.forEach(line => {
+                        if (line.startsWith('data: ')) {
+                            try {
+                                const data = JSON.parse(line.substring(6));
+
+                                if (data.type === 'init' && onInit) {
+                                    onInit(data);
+                                } else if (data.type === 'text' && onContent) {
+                                    onContent(data.content);
+                                } else if (data.type === 'complete' && onComplete) {
+                                    onComplete(data.data);
+                                } else if (data.type === 'error' && onError) {
+                                    onError(data.error);
+                                }
+                            } catch (e) {
+                                console.error('Parse SSE error:', e);
+                            }
+                        }
+                    });
+
+                    readStream();
+                }).catch(error => {
+                    if (onError) onError(error.message);
+                });
+            };
+
+            readStream();
+        }).catch(error => {
+            if (onError) onError(error.message);
+        });
+    },
+
+    // 继续代码生成对话（非流式）
+    codegenChat: (payload: {
+        chatId: string;
+        prompt: string;
+        modelId?: string;
+        projectId?: string;
+        currentPage?: string;
+    }) => {
+        return client.post('/api/codegen/chat', payload);
+    },
+
+    // 继续代码生成对话（流式）
+    codegenChatStream: (
+        payload: {
+            chatId: string;
+            prompt: string;
+            modelId?: string;
+            projectId?: string;
+            currentPage?: string;
+        },
+        onContent?: (content: string) => void,
+        onComplete?: (data: any) => void,
+        onError?: (error: string) => void
+    ) => {
+        const token = localStorage.getItem('auth_token');
+        const url = `${API_HOST || _GLOBAL_VARS_.VITE_APP_PROXY}/api/codegen/chat`;
+
+        return fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': token ? `Bearer ${token}` : ''
+            },
+            body: JSON.stringify({ ...payload, stream: true })
+        }).then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+
+            const reader = response.body?.getReader();
+            const decoder = new TextDecoder();
+
+            const readStream = () => {
+                reader?.read().then(({ done, value }) => {
+                    if (done) return;
+
+                    const chunk = decoder.decode(value);
+                    const lines = chunk.split('\n');
+
+                    lines.forEach(line => {
+                        if (line.startsWith('data: ')) {
+                            try {
+                                const data = JSON.parse(line.substring(6));
+
+                                if (data.type === 'text' && onContent) {
+                                    onContent(data.content);
+                                } else if (data.type === 'complete' && onComplete) {
+                                    onComplete(data.data);
+                                } else if (data.type === 'error' && onError) {
+                                    onError(data.error);
+                                }
+                            } catch (e) {
+                                console.error('Parse SSE error:', e);
+                            }
+                        }
+                    });
+
+                    readStream();
+                }).catch(error => {
+                    if (onError) onError(error.message);
+                });
+            };
+
+            readStream();
+        }).catch(error => {
+            if (onError) onError(error.message);
+        });
+    },
+
+    // 获取支持的模型列表
+    codegenGetModels: () => {
+        return client.get('/api/codegen/models');
+    },
+
+    // 获取聊天历史
+    codegenGetHistory: (chatId: string) => {
+        return client.get('/api/codegen/history', { params: { chatId } });
+    },
+
+    // 获取统计信息
+    codegenGetStats: (chatId: string) => {
+        return client.get('/api/codegen/stats', { params: { chatId } });
+    },
+
+    // 删除聊天
+    codegenDeleteChat: (chatId: string) => {
+        return client.delete(`/api/codegen/chat/${chatId}`);
+    },
+
+    // 获取用户的所有对话列表
+    codegenGetUserChats: (params?: { limit?: number; offset?: number }) => {
+        return client.get('/api/codegen/chats', { params });
     }
 };
