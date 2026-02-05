@@ -303,9 +303,17 @@ export const api = {
 
                                 if (data.type === 'init' && onInit) {
                                     onInit(data);
+                                } else if (data.type === 'think' && onThinking) {
+                                    // 新格式: think 类型用于思考过程,显示给用户
+                                    onThinking(data.content);
+                                } else if (data.type === 'code') {
+                                    // 新格式: code 类型不显示,仅用于进度跟踪
+                                    console.log('[API] Code chunk received:', data.fileName, 'Progress:', data.progress);
                                 } else if (data.type === 'text' && onContent) {
+                                    // 兼容旧格式
                                     onContent(data.content);
                                 } else if (data.type === 'thinking' && onThinking) {
+                                    // 兼容旧格式
                                     onThinking(data.content);
                                 } else if (data.type === 'complete' && onComplete) {
                                     onComplete(data.data);
@@ -392,9 +400,17 @@ export const api = {
                             try {
                                 const data = JSON.parse(line.substring(6));
 
-                                if (data.type === 'text' && onContent) {
+                                if (data.type === 'think' && onThinking) {
+                                    // 新格式: think 类型用于思考过程,显示给用户
+                                    onThinking(data.content);
+                                } else if (data.type === 'code') {
+                                    // 新格式: code 类型不显示,仅用于进度跟踪
+                                    console.log('[API] Code chunk received:', data.fileName, 'Progress:', data.progress);
+                                } else if (data.type === 'text' && onContent) {
+                                    // 兼容旧格式
                                     onContent(data.content);
                                 } else if (data.type === 'thinking' && onThinking) {
+                                    // 兼容旧格式
                                     onThinking(data.content);
                                 } else if (data.type === 'complete' && onComplete) {
                                     onComplete(data.data);

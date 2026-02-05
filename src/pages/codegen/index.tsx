@@ -8,6 +8,7 @@ interface Message {
     content: string;
     thinking?: string;
     isStreaming?: boolean;
+    codeProgress?: number; // 代码生成进度
 }
 
 export const CodeGen: React.FC = () => {
@@ -77,7 +78,7 @@ export const CodeGen: React.FC = () => {
                         prompt: userMessage.content,
                         modelId: selectedModel
                     },
-                    // onContent
+                    // onContent (兼容旧格式,新格式不使用)
                     (content) => {
                         setMessages(prev => prev.map(msg =>
                             msg.id === aiMessageId
@@ -88,9 +89,14 @@ export const CodeGen: React.FC = () => {
                     // onComplete
                     (data) => {
                         console.log('Chat complete:', data);
+                        const fileCount = data.files?.length || 0;
                         setMessages(prev => prev.map(msg =>
                             msg.id === aiMessageId
-                                ? { ...msg, isStreaming: false }
+                                ? {
+                                    ...msg,
+                                    content: `✅ 代码更新完成！共更新 ${fileCount} 个文件`,
+                                    isStreaming: false
+                                }
                                 : msg
                         ));
                         setIsLoading(false);
@@ -104,13 +110,13 @@ export const CodeGen: React.FC = () => {
                         console.error('Chat error:', error);
                         setMessages(prev => prev.map(msg =>
                             msg.id === aiMessageId
-                                ? { ...msg, content: `Error: ${error}`, isStreaming: false }
+                                ? { ...msg, content: `❌ Error: ${error}`, isStreaming: false }
                                 : msg
                         ));
                         setIsLoading(false);
                         setPreviewLoading(false);
                     },
-                    // onThinking
+                    // onThinking (新格式: 接收 think 类型的内容)
                     (thinking) => {
                         setMessages(prev => prev.map(msg =>
                             msg.id === aiMessageId
@@ -132,7 +138,7 @@ export const CodeGen: React.FC = () => {
                         setCurrentChatId(data.chatId);
                         setCurrentSessionId(data.sessionId);
                     },
-                    // onContent
+                    // onContent (兼容旧格式,新格式不使用)
                     (content) => {
                         setMessages(prev => prev.map(msg =>
                             msg.id === aiMessageId
@@ -143,9 +149,14 @@ export const CodeGen: React.FC = () => {
                     // onComplete
                     (data) => {
                         console.log('Init complete:', data);
+                        const fileCount = data.files?.length || 0;
                         setMessages(prev => prev.map(msg =>
                             msg.id === aiMessageId
-                                ? { ...msg, isStreaming: false }
+                                ? {
+                                    ...msg,
+                                    content: `✅ 代码生成完成！共生成 ${fileCount} 个文件，自动部署中请等待...`,
+                                    isStreaming: false
+                                }
                                 : msg
                         ));
                         setIsLoading(false);
@@ -159,13 +170,13 @@ export const CodeGen: React.FC = () => {
                         console.error('Init error:', error);
                         setMessages(prev => prev.map(msg =>
                             msg.id === aiMessageId
-                                ? { ...msg, content: `Error: ${error}`, isStreaming: false }
+                                ? { ...msg, content: `❌ Error: ${error}`, isStreaming: false }
                                 : msg
                         ));
                         setIsLoading(false);
                         setPreviewLoading(false);
                     },
-                    // onThinking
+                    // onThinking (新格式: 接收 think 类型的内容)
                     (thinking) => {
                         setMessages(prev => prev.map(msg =>
                             msg.id === aiMessageId
