@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { api } from '../../services/api';
+import { useI18n } from '../../context/I18nContext';
 import './CodeGen.scss';
 
 interface Message {
@@ -12,12 +13,14 @@ interface Message {
 }
 
 export const CodeGen: React.FC = () => {
+    const { t } = useI18n();
     const [messages, setMessages] = useState<Message[]>([]);
     const [inputValue, setInputValue] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
     const [currentChatId, setCurrentChatId] = useState<string | null>(null);
     const [previewLoading, setPreviewLoading] = useState(false);
+    const [previewReady, setPreviewReady] = useState(false); // 标记预览是否准备好
     const [selectedModel, setSelectedModel] = useState('');
     const [models, setModels] = useState<any[]>([]);
     const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -57,6 +60,7 @@ export const CodeGen: React.FC = () => {
         setInputValue('');
         setIsLoading(true);
         setPreviewLoading(true);
+        setPreviewReady(false); // 重置预览状态
 
         // 创建一个新的 AI 消息用于流式更新
         const aiMessageId = (Date.now() + 1).toString();
@@ -94,13 +98,14 @@ export const CodeGen: React.FC = () => {
                             msg.id === aiMessageId
                                 ? {
                                     ...msg,
-                                    content: `✅ 代码更新完成！共更新 ${fileCount} 个文件`,
+                                    content: t.codegen.message.codeUpdating.replace('{count}', fileCount.toString()),
                                     isStreaming: false
                                 }
                                 : msg
                         ));
                         setIsLoading(false);
                         setPreviewLoading(false);
+                        setPreviewReady(true); // 代码更新完成，刷新预览
                         if (data.sessionId) {
                             setCurrentSessionId(data.sessionId);
                         }
@@ -110,7 +115,7 @@ export const CodeGen: React.FC = () => {
                         console.error('Chat error:', error);
                         setMessages(prev => prev.map(msg =>
                             msg.id === aiMessageId
-                                ? { ...msg, content: `❌ Error: ${error}`, isStreaming: false }
+                                ? { ...msg, content: `${t.codegen.message.error}${error}`, isStreaming: false }
                                 : msg
                         ));
                         setIsLoading(false);
@@ -137,6 +142,7 @@ export const CodeGen: React.FC = () => {
                         console.log('Init data:', data);
                         setCurrentChatId(data.chatId);
                         setCurrentSessionId(data.sessionId);
+                        // 不在这里设置 previewReady，等 onComplete 时再设置
                     },
                     // onContent (兼容旧格式,新格式不使用)
                     (content) => {
@@ -154,13 +160,14 @@ export const CodeGen: React.FC = () => {
                             msg.id === aiMessageId
                                 ? {
                                     ...msg,
-                                    content: `✅ 代码生成完成！共生成 ${fileCount} 个文件，自动部署中请等待...`,
+                                    content: t.codegen.message.codeGenerating.replace('{count}', fileCount.toString()),
                                     isStreaming: false
                                 }
                                 : msg
                         ));
                         setIsLoading(false);
                         setPreviewLoading(false);
+                        setPreviewReady(true); // 代码生成完成，可以显示预览
                         if (data.sessionId) {
                             setCurrentSessionId(data.sessionId);
                         }
@@ -170,7 +177,7 @@ export const CodeGen: React.FC = () => {
                         console.error('Init error:', error);
                         setMessages(prev => prev.map(msg =>
                             msg.id === aiMessageId
-                                ? { ...msg, content: `❌ Error: ${error}`, isStreaming: false }
+                                ? { ...msg, content: `${t.codegen.message.error}${error}`, isStreaming: false }
                                 : msg
                         ));
                         setIsLoading(false);
@@ -208,6 +215,7 @@ export const CodeGen: React.FC = () => {
         setCurrentSessionId(null);
         setInputValue('');
         setPreviewLoading(false);
+        setPreviewReady(false);
     };
 
     return (
@@ -215,12 +223,12 @@ export const CodeGen: React.FC = () => {
             {/* Header */}
             <div className="codegen-header">
                 <div className="header-content">
-                    <h1>Code Generator</h1>
-                    <p>Generate code with AI assistance</p>
+                    <h1>{t.codegen.header.title}</h1>
+                    <p>{t.codegen.header.subtitle}</p>
                 </div>
                 <div className="header-actions">
                     <button className="new-chat-btn" onClick={handleNewChat}>
-                        New Chat
+                        {t.codegen.newChat}
                     </button>
                 </div>
             </div>
@@ -233,8 +241,8 @@ export const CodeGen: React.FC = () => {
                     <div className="messages-area">
                         {messages.length === 0 ? (
                             <div className="empty-state">
-                                <div className="empty-icon">💬</div>
-                                <p>Start a conversation to generate code</p>
+                                <div className="empty-icon">{t.codegen.chat.emptyIcon}</div>
+                                <p>{t.codegen.chat.emptyState}</p>
                             </div>
                         ) : (
                             messages.map((message) => (
@@ -244,12 +252,12 @@ export const CodeGen: React.FC = () => {
                                     </div>
                                     <div className="message-content">
                                         <div className="message-header">
-                                            {message.role === 'user' ? 'You' : 'AI Assistant'}
+                                            {message.role === 'user' ? t.codegen.chat.user : t.codegen.chat.assistant}
                                         </div>
                                         {message.thinking && (
                                             <div className="message-thinking">
                                                 <div className="thinking-header">
-                                                    💭 Thinking...
+                                                    {t.codegen.chat.thinking}
                                                 </div>
                                                 <div className="thinking-content">
                                                     {message.thinking}
@@ -269,7 +277,7 @@ export const CodeGen: React.FC = () => {
                     {/* Input Section */}
                     <div className="input-section">
                         <div className="model-selector">
-                            <label>Model:</label>
+                            <label>{t.codegen.model.label}</label>
                             <select
                                 value={selectedModel}
                                 onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setSelectedModel(e.target.value)}
@@ -288,7 +296,7 @@ export const CodeGen: React.FC = () => {
                                 value={inputValue}
                                 onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setInputValue(e.target.value)}
                                 onKeyDown={handleKeyDown}
-                                placeholder="Describe what you want to create..."
+                                placeholder={t.codegen.input.placeholder}
                                 rows={3}
                                 disabled={isLoading}
                             />
@@ -297,7 +305,7 @@ export const CodeGen: React.FC = () => {
                                 onClick={handleSend}
                                 disabled={isLoading || !inputValue.trim() || !selectedModel}
                             >
-                                {isLoading ? 'Generating...' : 'Send'}
+                                {isLoading ? t.codegen.input.generating : t.codegen.input.send}
                             </button>
                         </div>
                     </div>
@@ -305,23 +313,24 @@ export const CodeGen: React.FC = () => {
 
                 {/* Right: Preview Section */}
                 <div className="preview-section">
-                    {!currentSessionId && !previewLoading ? (
+                    {!previewLoading && !previewReady ? (
                         <div className="preview-empty">
-                            <div className="preview-empty-icon">🖼️</div>
-                            <p>Preview will appear here</p>
+                            <div className="preview-empty-icon">{t.codegen.preview.emptyIcon}</div>
+                            <p>{t.codegen.preview.empty}</p>
                         </div>
-                    ) : previewLoading && !currentSessionId ? (
+                    ) : previewReady && currentSessionId ? (
+                        <iframe
+                            key={currentSessionId}
+                            src={`${window.location.origin}/deployments/${currentSessionId}/`}
+                            className="preview-iframe"
+                            title={t.codegen.preview.title}
+                        />
+                    ) : (
                         <div className="preview-loading">
                             <div className="spinner"></div>
-                            <p>Building your project...</p>
+                            <p>{t.codegen.preview.loading}</p>
                         </div>
-                    ) : currentSessionId ? (
-                        <iframe
-                            src={`http://localhost:80/deployments/${currentSessionId}/`}
-                            className="preview-iframe"
-                            title="Preview"
-                        />
-                    ) : null}
+                    )}
                 </div>
             </div>
         </div>
