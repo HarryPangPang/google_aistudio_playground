@@ -23,6 +23,7 @@ export const CodeGen: React.FC = () => {
     const [previewReady, setPreviewReady] = useState(false); // 标记预览是否准备好
     const [selectedModel, setSelectedModel] = useState('');
     const [models, setModels] = useState<any[]>([]);
+    const [copySuccess, setCopySuccess] = useState(false); // 复制成功提示
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -216,6 +217,24 @@ export const CodeGen: React.FC = () => {
         setInputValue('');
         setPreviewLoading(false);
         setPreviewReady(false);
+        setCopySuccess(false);
+    };
+
+    // 复制链接
+    const handleCopyLink = () => {
+        if (!currentSessionId) return;
+        const link = `${window.location.origin}/deployments/${currentSessionId}/`;
+        navigator.clipboard.writeText(link).then(() => {
+            setCopySuccess(true);
+            setTimeout(() => setCopySuccess(false), 2000);
+        });
+    };
+
+    // 打开链接
+    const handleOpenLink = () => {
+        if (!currentSessionId) return;
+        const link = `${window.location.origin}/deployments/${currentSessionId}/`;
+        window.open(link, '_blank');
     };
 
     return (
@@ -319,12 +338,22 @@ export const CodeGen: React.FC = () => {
                             <p>{t.codegen.preview.empty}</p>
                         </div>
                     ) : previewReady && currentSessionId ? (
-                        <iframe
-                            key={currentSessionId}
-                            src={`${window.location.origin}/deployments/${currentSessionId}/`}
-                            className="preview-iframe"
-                            title={t.codegen.preview.title}
-                        />
+                        <>
+                            <div className="preview-toolbar">
+                                <button className="toolbar-btn" onClick={handleOpenLink}>
+                                    🔗 {t.codegen.preview.open}
+                                </button>
+                                <button className="toolbar-btn" onClick={handleCopyLink}>
+                                    {copySuccess ? '✓ ' + t.codegen.preview.linkCopied : '📋 ' + t.codegen.preview.copyLink}
+                                </button>
+                            </div>
+                            <iframe
+                                key={currentSessionId}
+                                src={`${window.location.origin}/deployments/${currentSessionId}/`}
+                                className="preview-iframe"
+                                title={t.codegen.preview.title}
+                            />
+                        </>
                     ) : (
                         <div className="preview-loading">
                             <div className="spinner"></div>

@@ -171,6 +171,9 @@ export const zhCN = {
             emptyIcon: '🖼️',
             loading: '正在生成代码并构建项目...',
             title: '预览',
+            open: '打开',
+            copyLink: '复制链接',
+            linkCopied: '链接已复制',
         },
         history: {
             title: '对话历史',
@@ -374,6 +377,9 @@ export const enUS = {
             emptyIcon: '🖼️',
             loading: 'Generating code and building project...',
             title: 'Preview',
+            open: 'Open',
+            copyLink: 'Copy Link',
+            linkCopied: 'Link Copied',
         },
         history: {
             title: 'Chat History',
