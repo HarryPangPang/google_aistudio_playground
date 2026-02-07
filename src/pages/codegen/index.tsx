@@ -313,6 +313,11 @@ export const CodeGen: React.FC = () => {
                 <div className="header-content">
                     <h1>{t.codegen.header.title}</h1>
                     <p>{t.codegen.header.subtitle}</p>
+                    {currentChatId && (
+                        <p className="header-chat-id" title={currentChatId}>
+                            {t.codegen?.header?.chatId ?? 'Chat ID'}: <code>{currentChatId}</code>
+                        </p>
+                    )}
                 </div>
                 <div className="header-actions">
                     <button className="new-chat-btn" onClick={handleNewChat}>
