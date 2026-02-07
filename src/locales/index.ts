@@ -164,6 +164,7 @@ export const zhCN = {
             codeGenerating: '✅ 代码生成完成！共生成 {count} 个文件',
             codeUpdating: '✅ 代码更新完成！共更新 {count} 个文件',
             error: '❌ 错误：',
+            buildError: '构建失败',
             autoDeploying: '，自动部署中请等待...',
         },
         preview: {
@@ -370,6 +371,7 @@ export const enUS = {
             codeGenerating: '✅ Code generation complete! Generated {count} files',
             codeUpdating: '✅ Code update complete! Updated {count} files',
             error: '❌ Error: ',
+            buildError: 'Build failed',
             autoDeploying: ', auto deploying, please wait...',
         },
         preview: {

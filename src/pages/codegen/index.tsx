@@ -12,6 +12,9 @@ interface Message {
     codeProgress?: number; // 代码生成进度
 }
 
+const BUILD_POLL_INTERVAL_MS = 2500;
+const BUILD_POLL_MAX_ATTEMPTS = 120; // ~5 min
+
 export const CodeGen: React.FC = () => {
     const { t } = useI18n();
     const [messages, setMessages] = useState<Message[]>([]);
@@ -21,11 +24,13 @@ export const CodeGen: React.FC = () => {
     const [currentChatId, setCurrentChatId] = useState<string | null>(null);
     const [previewLoading, setPreviewLoading] = useState(false);
     const [previewReady, setPreviewReady] = useState(false); // 标记预览是否准备好
+    const [buildError, setBuildError] = useState<string | null>(null); // 构建失败时展示
     const [selectedModel, setSelectedModel] = useState('');
     const [models, setModels] = useState<any[]>([]);
     const [copySuccess, setCopySuccess] = useState(false); // 复制成功提示
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const textareaRef = useRef<HTMLTextAreaElement>(null);
+    const buildPollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
     // 加载支持的模型列表
     useEffect(() => {
@@ -47,6 +52,50 @@ export const CodeGen: React.FC = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }, [messages]);
 
+    // 构建状态轮询：生成完成后轮询 buildRecord，构建失败时展示 error_message
+    const startBuildPoll = (chatId: string) => {
+        if (buildPollRef.current) {
+            clearInterval(buildPollRef.current);
+            buildPollRef.current = null;
+        }
+        setBuildError(null);
+        let attempts = 0;
+        buildPollRef.current = setInterval(async () => {
+            attempts++;
+            if (attempts > BUILD_POLL_MAX_ATTEMPTS) {
+                if (buildPollRef.current) clearInterval(buildPollRef.current);
+                buildPollRef.current = null;
+                return;
+            }
+            try {
+                const res: any = await api.getBuildRecord();
+                if (!res?.success || !Array.isArray(res.data)) return;
+                const record = res.data.find((r: any) => r.drive_id === chatId);
+                if (!record) return;
+                if (record.is_processed === 1) {
+                    setBuildError(null);
+                    if (buildPollRef.current) clearInterval(buildPollRef.current);
+                    buildPollRef.current = null;
+                } else if (record.is_processed === 3 && record.error_message) {
+                    setBuildError(record.error_message);
+                    if (buildPollRef.current) clearInterval(buildPollRef.current);
+                    buildPollRef.current = null;
+                }
+            } catch (e) {
+                console.warn('Build poll error:', e);
+            }
+        }, BUILD_POLL_INTERVAL_MS);
+    };
+
+    useEffect(() => {
+        return () => {
+            if (buildPollRef.current) {
+                clearInterval(buildPollRef.current);
+                buildPollRef.current = null;
+            }
+        };
+    }, []);
+
     // 发送消息
     const handleSend = async () => {
         if (!inputValue.trim() || isLoading || !selectedModel) return;
@@ -61,7 +110,8 @@ export const CodeGen: React.FC = () => {
         setInputValue('');
         setIsLoading(true);
         setPreviewLoading(true);
-        setPreviewReady(false); // 重置预览状态
+        setPreviewReady(false);
+        setBuildError(null);
 
         // 创建一个新的 AI 消息用于流式更新
         const aiMessageId = (Date.now() + 1).toString();
@@ -95,21 +145,18 @@ export const CodeGen: React.FC = () => {
                     (data) => {
                         console.log('Chat complete:', data);
                         const fileCount = data.files?.length || 0;
+                        let content = t.codegen.message.codeUpdating.replace('{count}', fileCount.toString());
+                        if (data.success === false && data.warning) content += '\n' + data.warning;
                         setMessages(prev => prev.map(msg =>
                             msg.id === aiMessageId
-                                ? {
-                                    ...msg,
-                                    content: t.codegen.message.codeUpdating.replace('{count}', fileCount.toString()),
-                                    isStreaming: false
-                                }
+                                ? { ...msg, content, isStreaming: false }
                                 : msg
                         ));
                         setIsLoading(false);
                         setPreviewLoading(false);
-                        setPreviewReady(true); // 代码更新完成，刷新预览
-                        if (data.sessionId) {
-                            setCurrentSessionId(data.sessionId);
-                        }
+                        setPreviewReady(true);
+                        if (data.sessionId) setCurrentSessionId(data.sessionId);
+                        if (data.chatId) startBuildPoll(data.chatId);
                     },
                     // onError
                     (error) => {
@@ -157,21 +204,18 @@ export const CodeGen: React.FC = () => {
                     (data) => {
                         console.log('Init complete:', data);
                         const fileCount = data.files?.length || 0;
+                        let content = t.codegen.message.codeGenerating.replace('{count}', fileCount.toString());
+                        if (data.success === false && data.warning) content += '\n' + data.warning;
                         setMessages(prev => prev.map(msg =>
                             msg.id === aiMessageId
-                                ? {
-                                    ...msg,
-                                    content: t.codegen.message.codeGenerating.replace('{count}', fileCount.toString()),
-                                    isStreaming: false
-                                }
+                                ? { ...msg, content, isStreaming: false }
                                 : msg
                         ));
                         setIsLoading(false);
                         setPreviewLoading(false);
-                        setPreviewReady(true); // 代码生成完成，可以显示预览
-                        if (data.sessionId) {
-                            setCurrentSessionId(data.sessionId);
-                        }
+                        setPreviewReady(true);
+                        if (data.sessionId) setCurrentSessionId(data.sessionId);
+                        if (data.chatId) startBuildPoll(data.chatId);
                     },
                     // onError
                     (error) => {
@@ -339,6 +383,11 @@ export const CodeGen: React.FC = () => {
                         </div>
                     ) : previewReady && currentSessionId ? (
                         <>
+                            {buildError && (
+                                <div className="preview-build-error" role="alert">
+                                    <strong>{t.codegen?.message?.buildError ?? 'Build failed'}:</strong> {buildError}
+                                </div>
+                            )}
                             <div className="preview-toolbar">
                                 <button className="toolbar-btn" onClick={handleOpenLink}>
                                     🔗 {t.codegen.preview.open}
