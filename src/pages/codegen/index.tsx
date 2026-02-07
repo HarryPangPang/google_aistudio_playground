@@ -424,6 +424,9 @@ export const CodeGen: React.FC = () => {
                             {buildError && (
                                 <div className="preview-build-error" role="alert">
                                     <strong>{t.codegen?.message?.buildError ?? 'Build failed'}:</strong> {buildError}
+                                    <p className="preview-build-error-hint">
+                                        {t.codegen?.message?.buildErrorHint ?? 'Please try again. This attempt does not consume tokens.'}
+                                    </p>
                                 </div>
                             )}
                             <div className="preview-toolbar">

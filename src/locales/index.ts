@@ -166,6 +166,7 @@ export const zhCN = {
             codeUpdating: '✅ 代码更新完成！共更新 {count} 个文件',
             error: '❌ 错误：',
             buildError: '构建失败',
+            buildErrorHint: '请重新生成，本次生成不消耗 Token。',
             autoDeploying: '，自动部署中请等待...',
         },
         preview: {
@@ -374,6 +375,7 @@ export const enUS = {
             codeUpdating: '✅ Code update complete! Updated {count} files',
             error: '❌ Error: ',
             buildError: 'Build failed',
+            buildErrorHint: 'Please try again. This attempt does not consume tokens.',
             autoDeploying: ', auto deploying, please wait...',
         },
         preview: {
