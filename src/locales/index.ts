@@ -143,7 +143,6 @@ export const zhCN = {
         header: {
             title: '代码生成器',
             subtitle: '使用 AI 辅助生成代码',
-            chatId: '对话 ID',
         },
         input: {
             placeholder: '描述你想要创建的内容...',
@@ -352,7 +351,6 @@ export const enUS = {
         header: {
             title: 'Code Generator',
             subtitle: 'Generate code with AI assistance',
-            chatId: 'Chat ID',
         },
         input: {
             placeholder: 'Describe what you want to create...',
