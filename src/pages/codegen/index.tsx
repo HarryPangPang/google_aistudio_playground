@@ -9,7 +9,8 @@ interface Message {
     content: string;
     thinking?: string;
     isStreaming?: boolean;
-    codeProgress?: number; // 代码生成进度
+    codeProgress?: number;
+    codeFiles?: string[]; // 已生成的文件名列表（来自 code 类型 SSE）
 }
 
 const BUILD_POLL_INTERVAL_MS = 2500;
@@ -169,11 +170,23 @@ export const CodeGen: React.FC = () => {
                         setIsLoading(false);
                         setPreviewLoading(false);
                     },
-                    // onThinking (新格式: 接收 think 类型的内容)
+                    // onThinking
                     (thinking) => {
                         setMessages(prev => prev.map(msg =>
                             msg.id === aiMessageId
                                 ? { ...msg, thinking: (msg.thinking || '') + thinking }
+                                : msg
+                        ));
+                    },
+                    // onCode: 输出已生成的文件名与进度
+                    (fileName, progress) => {
+                        setMessages(prev => prev.map(msg =>
+                            msg.id === aiMessageId
+                                ? {
+                                    ...msg,
+                                    codeFiles: [...(msg.codeFiles || []), fileName],
+                                    codeProgress: progress
+                                }
                                 : msg
                         ));
                     }
@@ -228,16 +241,28 @@ export const CodeGen: React.FC = () => {
                         setIsLoading(false);
                         setPreviewLoading(false);
                     },
-                    // onThinking (新格式: 接收 think 类型的内容)
+                    // onThinking
                     (thinking) => {
                         setMessages(prev => prev.map(msg =>
                             msg.id === aiMessageId
                                 ? { ...msg, thinking: (msg.thinking || '') + thinking }
                                 : msg
                         ));
+                    },
+                    // onCode: 输出已生成的文件名与进度
+                    (fileName, progress) => {
+                        setMessages(prev => prev.map(msg =>
+                            msg.id === aiMessageId
+                                ? {
+                                    ...msg,
+                                    codeFiles: [...(msg.codeFiles || []), fileName],
+                                    codeProgress: progress
+                                }
+                                : msg
+                        ));
                     }
                 );
-            }
+        }
         } catch (error) {
             console.error('Send error:', error);
             setIsLoading(false);
@@ -325,6 +350,19 @@ export const CodeGen: React.FC = () => {
                                                 <div className="thinking-content">
                                                     {message.thinking}
                                                 </div>
+                                            </div>
+                                        )}
+                                        {message.codeFiles && message.codeFiles.length > 0 && (
+                                            <div className="message-code-files">
+                                                <div className="code-files-header">
+                                                    {t.codegen?.chat?.codeFiles ?? '📄 已生成文件'}
+                                                    {message.codeProgress != null && ` (${message.codeProgress}%)`}
+                                                </div>
+                                                <ul className="code-files-list">
+                                                    {message.codeFiles.map((file, i) => (
+                                                        <li key={i}>{file}</li>
+                                                    ))}
+                                                </ul>
                                             </div>
                                         )}
                                         <div className="message-text">

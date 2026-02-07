@@ -159,6 +159,7 @@ export const zhCN = {
             user: '你',
             assistant: 'AI 助手',
             thinking: '💭 思考中...',
+            codeFiles: '📄 已生成文件',
         },
         message: {
             codeGenerating: '✅ 代码生成完成！共生成 {count} 个文件',
@@ -366,6 +367,7 @@ export const enUS = {
             user: 'You',
             assistant: 'AI Assistant',
             thinking: '💭 Thinking...',
+            codeFiles: '📄 Generated files',
         },
         message: {
             codeGenerating: '✅ Code generation complete! Generated {count} files',
